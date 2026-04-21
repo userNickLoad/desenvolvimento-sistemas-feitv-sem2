@@ -1,24 +1,12 @@
 #include "header.h"
-#include "lists.h"
-
-declara_list(int, linker)
+#include "pages.h"
 
 
-int main(void) {
-    linker_list * list = linker_init_list();
+int main(void)
+{
+    
+    live_page(page_inicio());
+    
 
-    add_linker(10, list);
-    add_linker(20, list);
-    add_linker(30, list);
-    node_int * crr = list->head;
-
-    while (1) {
-        printf("%d", crr->value);
-
-        if (crr->nxt == NULL) {
-            break;
-        }
-        crr = crr->nxt;
-    }
     return 0;
 }
