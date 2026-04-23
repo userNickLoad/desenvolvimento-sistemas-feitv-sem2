@@ -17,12 +17,18 @@ typedef struct Page
 
 } Page;
 
-Page * page_inicio(void);
-
 void render(Page * page);
 
 Page *build_page(char title[20], char description[250], char **opcoes, Page **nxt, Page *lst, void * render_payload, void *action);
 
-void live_page(Page * page);
+Page * link_pages();
+
+Page * live_page(Page * page);
+
+Page * page_inicio(void);
+
+Page * page_login(void);
+
+Page * page_signup(void);
 
 #endif

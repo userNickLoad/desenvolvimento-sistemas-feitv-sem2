@@ -1,6 +1,6 @@
-#include "header.h"
-#include "pages.h"
-#include "lists.h"
+#include "../header.h"
+#include "../pages.h"
+#include "../lists.h"
 
 char ** add_opcao(char* op, char **ops){
     char * crr = malloc(sizeof(char)*10);

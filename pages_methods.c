@@ -37,7 +37,7 @@ Page *build_page(char title[20], char description[250], char **opcoes, Page **nx
     return this_p;
 }
 
-void live_page(Page * page){
+Page * live_page(Page * page){
     if(page->lst){
         page->link = page->lst->link;
     }
@@ -45,6 +45,8 @@ void live_page(Page * page){
     add_Str(page->title, &page->link);
 
     render(page);
+
+
 
    
 }
