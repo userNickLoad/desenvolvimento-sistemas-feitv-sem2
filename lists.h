@@ -1,7 +1,7 @@
 #ifndef LISTS_H
 #define LISTS_H
 
-#include "pages.h"
+typedef struct Page Page;
 
 #define nodex(type)              \
     typedef struct node_##type   \
@@ -156,6 +156,5 @@ declara_list_dec(char_ptr, Str);
 
 dinamic_list_dec(char_ptr, dina_str, 20);
 
-dinamic_list_dec(Page , dina_str, 20);
 
 #endif

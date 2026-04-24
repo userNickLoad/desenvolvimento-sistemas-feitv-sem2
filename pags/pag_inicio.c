@@ -6,15 +6,13 @@ char ** add_opcao(char* op, char **ops){
     char * crr = malloc(sizeof(char)*10);
     for(int i = 0; i < 10; i++){
         crr[i] = op[i];
-        if(op == '\0') break;
+        if(op[i] == '\0') break;
     }
 
     ops = dina_str_add(crr, ops);
 
     return ops;
 }
-
-
 
 Page * page_inicio(void){
     char **ops = dina_str_init(2);
@@ -23,6 +21,7 @@ Page * page_inicio(void){
     ops = add_opcao("Entrar", ops);
     ops = add_opcao("Cadastro", ops);
 
-    Page *page = build_page("inicio", "\tSeja bem vindo ao feitv!\n\tO seu catalogo de filmes pirat... GRATIS.", ops, NULL, NULL, render, NULL);
+    Page *page = build_page("inicio", "\tSeja bem vindo ao feitv!\n\tO seu catalogo de filmes pirat... GRATIS.", ops, render, NULL);
 
+    return page;
 }
