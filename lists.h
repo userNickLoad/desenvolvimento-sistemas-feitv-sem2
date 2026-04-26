@@ -89,8 +89,8 @@ typedef struct Page Page;
     nodex(type)                                     \
         listx(type, name) void                      \
         pop_##name(name##_list *list);              \
-    void free_##name(name##_list *list);            \
     void pop_##name(name##_list *list);             \
+    void free_##name(name##_list *list);            \
     void add_##name(type value, name##_list *list); \
     name##_list *name##_init_list();
 
