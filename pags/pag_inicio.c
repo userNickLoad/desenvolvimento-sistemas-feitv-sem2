@@ -2,17 +2,7 @@
 #include "../pages.h"
 #include "../lists.h"
 
-char ** add_opcao(char* op, char **ops){
-    char * crr = malloc(sizeof(char)*10);
-    for(int i = 0; i < 10; i++){
-        crr[i] = op[i];
-        if(op[i] == '\0') break;
-    }
 
-    ops = dina_str_add(crr, ops);
-
-    return ops;
-}
 
 void page_inicio(void * _, Page * this_p){
     char **ops = dina_str_init(2);

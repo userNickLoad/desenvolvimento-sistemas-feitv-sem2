@@ -109,6 +109,31 @@ void render_options_default(Page* page, int i ){
     printf("\t\t- [%d]: %s;\n", i, page->opcoes[i]);
 }
 
+char ** add_opcao(char* op, char **ops){
+    char * crr = malloc(sizeof(char)*20);
+    for(int i = 0; i < 20; i++){
+        crr[i] = op[i];
+        if(op[i] == '\0') break;
+    }
+
+    ops = dina_str_add(crr, ops);
+
+    printf("Tamanho: %d", dinamic_size(ops));
+
+    return ops;
+}
+
+void free_opcoes(char **ops){
+    printf("\npassou 1 n: %d\n", dinamic_size(ops));
+    for (int i = 0; i < dinamic_size(ops); i++){
+        
+        free(ops[i]);
+    }
+    
+    
+    free((char **) (((int *) ops)-3));
+}
+
 void render(Page * page){
     /*
      * - Essa função é responsavel por colocar na tela tudo o q o usuário precisa, incluindo:
@@ -151,6 +176,16 @@ void render(Page * page){
 
 void build_page(char *title, char *description, char * question, char **opcoes, void *nxt, void *lst, void * render_options, void *action, Page *this_p)
 {      
+    if(this_p->link != NULL){
+        
+        if(this_p->opcoes != NULL)
+            free_opcoes(this_p->opcoes);
+
+        if(this_p->nxt != NULL)
+
+        free(this_p->nxt);
+    }
+
     if(lst == NULL && this_p->link != NULL){
         free_Str(this_p->link);
         this_p->link = NULL;
@@ -158,8 +193,9 @@ void build_page(char *title, char *description, char * question, char **opcoes, 
 
     if(this_p->link == NULL){
         this_p->link = Str_init_list();
-        add_Str(title, this_p->link);
     }
+
+    add_Str(title, this_p->link);
 
     this_p->title = title;
     this_p->description = description;
