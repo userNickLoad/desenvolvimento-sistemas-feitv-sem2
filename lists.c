@@ -3,4 +3,7 @@
 
 declara_list_impl(char_ptr, Str);
 
-dinamic_list_impl(char_ptr, dina_str, 20);
+dinamic_list_impl(char, dina_char, 0);
+
+
+dinamic_list_impl(void *, dina_prt, 0);

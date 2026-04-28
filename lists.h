@@ -154,7 +154,9 @@ typedef char **str_ptr;
 
 declara_list_dec(char_ptr, Str);
 
-dinamic_list_dec(char_ptr, dina_str, 20);
+dinamic_list_dec(char, dina_char, 0);
+
+dinamic_list_dec(void *, dina_prt, 0);
 
 
 #endif
