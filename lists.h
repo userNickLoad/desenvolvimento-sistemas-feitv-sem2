@@ -148,6 +148,9 @@ typedef struct Page Page;
     init_dinamic_list(type, name, inner_size)     \
         add_dinamic_list(type, name)
 
+#define dinamic_free(type, list) \
+        free((type *)(((int *)list) - 3));
+
 typedef char *char_ptr;
 
 typedef char **str_ptr;
