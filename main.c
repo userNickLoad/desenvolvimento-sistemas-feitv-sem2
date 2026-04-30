@@ -13,7 +13,7 @@ int main(void)
 
     crr_page->link = NULL;
 
-    page_inicio(NULL, crr_page);
+    page_inicio(crr_page);
 
     while (1) {
         live_page(crr_page);
@@ -22,9 +22,6 @@ int main(void)
 
     }
 
-
-
-    
 
     return 0;
 }

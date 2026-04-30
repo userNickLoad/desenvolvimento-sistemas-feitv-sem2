@@ -31,12 +31,16 @@ typedef struct Data
     void *payload;
 } Data;
 
-typedef void (*PageFn)(void *, Page * this_p);
+typedef void (*PageFn)(Page *this_p);
 
-typedef void (*PageFn)(void *, Page * this_p);
+typedef struct changePage
+{
+    short unsigned free_all;
+    PageFn build;
+} changePage;
 
 typedef struct Page
-{   
+{
     Str_list *link;
     char *title;
     char *description;
@@ -44,31 +48,44 @@ typedef struct Page
     char *question;
     int selected;
     int i_janela;
-    PageFn *nxt;
-    PageFn lst;
+    changePage **nxt;
+    changePage *lst;
     Data data;
+    PageFn (*selectFn)(struct Page *, int);
+    void (*clearFn)(struct Page *);
     void (*render_options)(struct Page *, int i);
     void (*action)(struct Page *);
     void (*consulta)(struct Page *);
 
 } Page;
 
-void render(Page * page);
+void render(Page *page);
 
-void listening_arrows(Page * page);
+void listening_arrows(Page *page);
 
-void insert_terminal(char * question, char * data, int limit);
+void insert_terminal(char *question, char *data, int limit);
 
-char ** add_opcao(char* op, char **ops, int size);
+void clearFn_defualt(Page *this_p);
 
-void build_page(char *title, char *description, char * question, char **opcoes, void *nxt, void *lst, void * render_payload, void *action, Page * this_p);
+char **add_opcao(char *op, char **ops, int size);
 
-void live_page(Page * page);
+void build_page(char *title, char *description, char *question, char **opcoes, void *nxt, void *lst, void *clearFn, void *selectFn, void *render_payload, void *action, Page *this_p);
 
-void page_inicio(void *, Page * this_p);
+void live_page(Page *page);
 
-void page_login(void *, Page * this_p);
+void page_inicio(Page *this_p);
 
-void page_signup(void *, Page * this_p);
+void page_login(Page *this_p);
 
+void page_signup(Page *this_p);
+
+#define add_nxt_pag(pageFn_, free_before, list)                    \
+    do                                                            \
+    {                                                             \
+        changePage *change_##pageFn = malloc(sizeof(changePage)); \
+        change_##pageFn->free_all = free_before;                  \
+        change_##pageFn->build = pageFn_;                          \
+        dina_prt_add(change_##pageFn, list);                      \
+    } while (0);
+ 
 #endif

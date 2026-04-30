@@ -186,20 +186,37 @@ void render(Page *page) {
     }
 }
 
-void free_page(Page *this_p) {
+void clearFn_defualt(Page *this_p) {
+
     if (this_p->link != NULL) {
         if (this_p->opcoes != NULL)
             free_opcoes(this_p->opcoes);
 
-        if (this_p->nxt != NULL)
+        if (this_p->nxt != NULL){
+            for(int i = 0; i < dinamic_size(this_p->nxt); i++){
+                free((changePage *)this_p->nxt[i]);
+            }
             dinamic_free(void *, this_p->nxt);
+        }
     }
 }
 
-void build_page(char *title, char *description, char *question, char **opcoes, void *nxt, void *lst,
-                void *render_options, void *action, Page *this_p) {
+PageFn selectFn_default(Page *this_p, int lst_selected){
+    return this_p->nxt[this_p->selected]->build;
+}
 
-    free_page(this_p);
+void build_page(char *title, char *description, char *question, char **opcoes, void *nxt, void *lst, void *clearFn, void *selectFn,
+                void *render_options, void *action, Page *this_p) {
+    
+    if(clearFn == NULL)
+        this_p->clearFn = clearFn_defualt;
+    else
+        this_p->clearFn = clearFn;
+
+    if(selectFn == NULL)
+        this_p->selectFn = selectFn_default;
+    else
+        this_p->selectFn = selectFn;
 
     if (lst == NULL && this_p->link != NULL) {
         free_Str(this_p->link);
@@ -231,39 +248,48 @@ void build_page(char *title, char *description, char *question, char **opcoes, v
     return;
 }
 
-void live_page(Page *page) {
+void live_page(Page *this_p) {
     CLEAR_TERMINAL
 
-    if (page->selected < 0) {
-        page->selected = 0;
+    if (this_p->selected < 0) {
+        this_p->selected = 0;
     }
 
-    render(page);
+    render(this_p);
 
-    int lst_selecet = page->selected;
+    int lst_selecet = this_p->selected;
 
-    if (page->opcoes != NULL)
-        listening_arrows(page);
+    if (this_p->opcoes != NULL)
+        listening_arrows(this_p);
 
-    if (page->opcoes == NULL && page->action != NULL)
-        page->action(page);
+    if (this_p->opcoes == NULL && this_p->action != NULL)
+        this_p->action(this_p);
 
 
-    switch (page->selected) {
+    switch (this_p->selected) {
         case -3:
             exit(0);
             break;
         case -2:
-            pop_Str(page->link);
-            pop_Str(page->link);
-            page->lst(NULL, page);
-            page->lst(NULL, page);
+            pop_Str(this_p->link);
+            pop_Str(this_p->link);
+
+            PageFn build_p = this_p->lst->build;
+
+            if(this_p->lst->free_all)
+                this_p->clearFn(this_p);
+
+            build_p(this_p);
 
             break;
         case -1:
 
-            page->nxt[lst_selecet](NULL, page);
+            PageFn build_p = this_p->selectFn(this_p, lst_selecet);
 
+            if(this_p->lst->free_all)
+                this_p->clearFn(this_p);
+
+            build_p(this_p);
             break;
 
         default:
