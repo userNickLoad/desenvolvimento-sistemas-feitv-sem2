@@ -7,6 +7,8 @@
 
 #define qtd_itens_janela 10
 
+dinamic_list_impl(ChangePage, dina_chPage, sizeof(ChangePage))
+
 void listening_arrows(Page *page) {
     /*
      *  - Essa função monitora e adiministra a seleção da pagina e possui os seguintes cases:
@@ -109,18 +111,22 @@ void render_options_default(Page *page, int i) {
 }
 
 void insert_terminal(char *question, char *data, int limit) {
+
     int lst = 0;
     char c;
     data[lst] = '\0';
-
+    
     printf("\t - %s:", question);
+
 
     while ((c = getch()) != Enter) {
         if (c == '\b' && lst > 0) {
-            data[--lst] = '\0';
+            data[lst] = '\0';
+            lst--;
             printf("\b \b");
-        } else if (lst < limit && ((c == ' ' && lst > 0) || c != ' ') && c != ';' && c != ',' && c != '.' && c != '\0') {
-            data[lst++] = c;
+        } else if (lst < limit && ((c == ' ' && lst > 0) || c != ' ') && c != ';' && c != ',' && c != '.' && c != '\0' && c != '\b') {
+            data[lst] = c;
+            lst++;
             data[lst] = '\0';
             printf("%c", c);
         }
@@ -187,31 +193,32 @@ void render(Page *page) {
 }
 
 void clearFn_defualt(Page *this_p) {
+   
+    if (this_p->opcoes != NULL)
+        free_opcoes(this_p->opcoes);
 
-    if (this_p->link != NULL) {
-        if (this_p->opcoes != NULL)
-            free_opcoes(this_p->opcoes);
-
-        if (this_p->nxt != NULL){
-            for(int i = 0; i < dinamic_size(this_p->nxt); i++){
-                free((changePage *)this_p->nxt[i]);
-            }
-            dinamic_free(void *, this_p->nxt);
-        }
+    if (this_p->nxt != NULL){
+        dinamic_free(ChangePage, this_p->nxt);
+    }
+    
+    if (this_p->lst != NULL){
+        free(this_p->lst);
     }
 }
 
-PageFn selectFn_default(Page *this_p, int lst_selected){
-    return this_p->nxt[this_p->selected]->build;
+ChangePage selectFn_default(Page *this_p, int lst_selected){
+    return this_p->nxt[lst_selected];
 }
 
-void build_page(char *title, char *description, char *question, char **opcoes, void *nxt, void *lst, void *clearFn, void *selectFn,
+void build_page(char *title, char *description, char *question, char **opcoes, ChangePage *nxt, ChangePage *lst, void *clearFn, void *selectFn,
                 void *render_options, void *action, Page *this_p) {
     
-    if(clearFn == NULL)
+    if(clearFn == NULL){
         this_p->clearFn = clearFn_defualt;
-    else
+    }
+    else{
         this_p->clearFn = clearFn;
+    }
 
     if(selectFn == NULL)
         this_p->selectFn = selectFn_default;
@@ -225,6 +232,7 @@ void build_page(char *title, char *description, char *question, char **opcoes, v
 
     if (this_p->link == NULL) {
         this_p->link = Str_init_list();
+        this_p->data.payload = NULL;
     }
 
     add_Str(title, this_p->link);
@@ -243,7 +251,7 @@ void build_page(char *title, char *description, char *question, char **opcoes, v
     this_p->i_janela = 0;
     this_p->lst = lst;
     this_p->nxt = nxt;
-    this_p->data.payload = NULL;
+    
 
     return;
 }
@@ -267,31 +275,33 @@ void live_page(Page *this_p) {
 
 
     switch (this_p->selected) {
-        case -3:
+        case EXIT_APP:
             exit(0);
             break;
-        case -2:
+        case GO_BACK: {
             pop_Str(this_p->link);
             pop_Str(this_p->link);
 
-            PageFn build_p = this_p->lst->build;
+            ChangePage build_p = this_p->lst[0];
 
-            if(this_p->lst->free_all)
+            if(build_p.free_all && this_p->clearFn != NULL)
                 this_p->clearFn(this_p);
 
-            build_p(this_p);
+            printf("Free: %d, fn: %p, fn real : %p", build_p.free_all, build_p.build, page_inicio);    
+            build_p.build(this_p);
 
             break;
-        case -1:
-
-            PageFn build_p = this_p->selectFn(this_p, lst_selecet);
-
-            if(this_p->lst->free_all)
+        }
+        case GO_FORD:{
+            ChangePage build_p = this_p->selectFn(this_p, lst_selecet);
+            
+            if(this_p->clearFn != NULL && build_p.free_all)
                 this_p->clearFn(this_p);
-
-            build_p(this_p);
+            
+            printf("Endereço: %p, condicao: %d", build_p.build, build_p.free_all);
+            build_p.build(this_p);
             break;
-
+        }
         default:
             break;
     }

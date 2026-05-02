@@ -33,11 +33,11 @@ typedef struct Data
 
 typedef void (*PageFn)(Page *this_p);
 
-typedef struct changePage
+typedef struct ChangePage
 {
     short unsigned free_all;
     PageFn build;
-} changePage;
+} ChangePage;
 
 typedef struct Page
 {
@@ -48,10 +48,10 @@ typedef struct Page
     char *question;
     int selected;
     int i_janela;
-    changePage **nxt;
-    changePage *lst;
+    ChangePage *nxt;
+    ChangePage *lst;
     Data data;
-    PageFn (*selectFn)(struct Page *, int);
+    ChangePage (*selectFn)(struct Page *, int);
     void (*clearFn)(struct Page *);
     void (*render_options)(struct Page *, int i);
     void (*action)(struct Page *);
@@ -59,7 +59,9 @@ typedef struct Page
 
 } Page;
 
-void render(Page *page);
+dinamic_list_dec(ChangePage, dina_chPage, sizeof(ChangePage))
+
+    void render(Page *page);
 
 void listening_arrows(Page *page);
 
@@ -69,7 +71,7 @@ void clearFn_defualt(Page *this_p);
 
 char **add_opcao(char *op, char **ops, int size);
 
-void build_page(char *title, char *description, char *question, char **opcoes, void *nxt, void *lst, void *clearFn, void *selectFn, void *render_payload, void *action, Page *this_p);
+void build_page(char *title, char *description, char *question, char **opcoes, ChangePage *nxt, ChangePage *lst, void *clearFn, void *selectFn, void *render_payload, void *action, Page *this_p);
 
 void live_page(Page *page);
 
@@ -79,13 +81,13 @@ void page_login(Page *this_p);
 
 void page_signup(Page *this_p);
 
-#define add_nxt_pag(pageFn_, free_before, list)                    \
-    do                                                            \
-    {                                                             \
-        changePage *change_##pageFn = malloc(sizeof(changePage)); \
-        change_##pageFn->free_all = free_before;                  \
-        change_##pageFn->build = pageFn_;                          \
-        dina_prt_add(change_##pageFn, list);                      \
+#define add_nxt_pag(pageFn_, free_before, list)  \
+    do                                           \
+    {                                            \
+        ChangePage change_##pageFn;              \
+        change_##pageFn.free_all = free_before; \
+        change_##pageFn.build = pageFn_;        \
+        dina_chPage_add(change_##pageFn, list);  \
     } while (0);
- 
+
 #endif

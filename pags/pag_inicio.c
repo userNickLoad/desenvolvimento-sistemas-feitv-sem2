@@ -10,23 +10,22 @@ void page_inicio(Page *this_p)
     ops = add_opcao("Entrar", ops, 20);
     ops = add_opcao("Cadastro", ops, 20);
 
-    void **nxt = dina_prt_init(2);
+    ChangePage *nxt = dina_chPage_init(2);
 
     add_nxt_pag(page_login, 1,nxt)
 
-    add_nxt_pag(page_login, 1,nxt)
+    add_nxt_pag(page_signup, 1,nxt)
 
     build_page(
-        "inicio", 
-        "\tSeja bem vindo ao feitv!\n\tO seu catalogo de filmes pirat... GRATIS.", 
-        "\n\n\t- Como navegar:\n\t\t+ Use as setas do teclado;\n\t\t+ Para fechar o programa precione a tecla [e];", 
-        ops, 
-        nxt, 
-        NULL, 
-        NULL, 
-        NULL, 
-        NULL, 
-        NULL, 
-        this_p
-    );
+        "inicio",
+        "\tSeja bem vindo ao feitv!\n\tO seu catalogo de filmes pirat... GRATIS.",
+        "\n\n\t- Como navegar:\n\t\t+ Use as setas do teclado;\n\t\t+ Para fechar o programa precione a tecla [e];",
+        ops,
+        nxt,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        this_p);
 }
