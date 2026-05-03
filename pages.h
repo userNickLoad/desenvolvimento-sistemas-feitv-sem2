@@ -29,13 +29,14 @@ typedef struct Data
 {
     User_loged user;
     void *payload;
+    void *response;
 } Data;
 
 typedef void (*PageFn)(Page *this_p);
 
 typedef struct ChangePage
 {
-    short unsigned free_all;
+    PageFn free_all;
     PageFn build;
 } ChangePage;
 
@@ -52,7 +53,7 @@ typedef struct Page
     ChangePage *lst;
     Data data;
     ChangePage (*selectFn)(struct Page *, int);
-    void (*clearFn)(struct Page *);
+    // void (*clearFn)(struct Page *);
     void (*render_options)(struct Page *, int i);
     void (*action)(struct Page *);
     void (*consulta)(struct Page *);
@@ -71,7 +72,7 @@ void clearFn_defualt(Page *this_p);
 
 char **add_opcao(char *op, char **ops, int size);
 
-void build_page(char *title, char *description, char *question, char **opcoes, ChangePage *nxt, ChangePage *lst, void *clearFn, void *selectFn, void *render_payload, void *action, Page *this_p);
+void build_page(char *title, char *description, char *question, char **opcoes, ChangePage *nxt, ChangePage *lst, void *selectFn, void *render_payload, void *action, Page *this_p);
 
 void live_page(Page *page);
 

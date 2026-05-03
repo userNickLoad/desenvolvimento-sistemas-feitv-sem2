@@ -12,9 +12,9 @@ void page_inicio(Page *this_p)
 
     ChangePage *nxt = dina_chPage_init(2);
 
-    add_nxt_pag(page_login, 1,nxt)
+    add_nxt_pag(page_login, NULL,nxt)
 
-    add_nxt_pag(page_signup, 1,nxt)
+    add_nxt_pag(page_signup, NULL,nxt)
 
     build_page(
         "inicio",
@@ -22,7 +22,6 @@ void page_inicio(Page *this_p)
         "\n\n\t- Como navegar:\n\t\t+ Use as setas do teclado;\n\t\t+ Para fechar o programa precione a tecla [e];",
         ops,
         nxt,
-        NULL,
         NULL,
         NULL,
         NULL,
