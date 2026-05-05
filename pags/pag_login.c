@@ -8,10 +8,8 @@ generate_gettxt_page(lg_name, "Coloque o seu usuario", User, name, validateCh_lo
 
 generate_gettxt_page(lg_password, "Coloque a sua senha", User, password, validateCh_login, page_login)
 
-
 void clear_login(Page *this_p)
 {
-
     if (this_p->data.payload != NULL)
     {
         User *user = this_p->data.payload;
@@ -46,11 +44,26 @@ void login_request(Page *this_p)
         page_login(this_p);
         return;
     }
+
+    Response res_login = login(user->name, user->password);
+    if (res_login.code != 200)
+    {
+        copy_struct(res, &res_login, sizeof(Response));
+        page_login(this_p);
+        return;
+    }
+
+    clear_login(this_p);
+
+    user = (User *) res_login.data;
+    this_p->data.user.id = user->id;
+    copy_str(this_p->data.user.name, user->name);
+    free(user);
+    page_inicio(this_p);
 }
 
 void page_login(Page *this_p)
 {
-
     User *user;
     if (this_p->data.payload == NULL)
     {
@@ -99,7 +112,7 @@ void page_login(Page *this_p)
 
     build_page(
         "login",
-        "Area de login: \n\t\t+ Coloque o seu usuario e senha;",
+        "Area de login: \n\t\t+ Coloque o seu usuario e senha;\n\t\t + Valem apenas letras de [A-z], numeros de [0-9] e anderline [_]",
         question,
         ops,
         nxt,

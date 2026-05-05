@@ -56,7 +56,6 @@ void signup_request(Page *this_p)
 
     clear_signup(this_p);
     page_login(this_p);
-
 }
 
 void page_signup(Page *this_p)
@@ -109,6 +108,6 @@ void page_signup(Page *this_p)
         question = res->msg;
     }
 
-    build_page("signup", "Area de cadastro: \n\t\t+ Coloque o seu usuario, senha e confirme a senha;", question, ops,
+    build_page("signup", "Area de cadastro: \n\t\t+ Coloque o seu usuario, senha e confirme a senha;\n\t\t + Valem apenas letras de [A-z], numeros de [0-9] e anderline [_]", question, ops,
                nxt, lst, NULL, NULL, NULL, this_p);
 }

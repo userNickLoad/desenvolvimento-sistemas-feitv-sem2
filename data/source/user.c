@@ -4,16 +4,15 @@ User *user_name_password(char *name, char *password)
 {
     db_file(User, "r")
 
-        User user,
-        *res = NULL;
+    User user,
+    *res = NULL;
 
     for (int i = 0; i < User_amount; i++)
     {
-
         fscanf(fl_User, USER_SCAN_MASK, &user.id, user.name, user.password);
+        
         if (compare_str(user.name, name))
         {
-
             if (compare_str(user.password, password))
             {
                 res = malloc(sizeof(User));
@@ -32,18 +31,17 @@ User *user_name_password(char *name, char *password)
 Response login(char *name, char *password)
 {
     Response res;
-
     res.data = user_name_password(name, password);
 
     if (res.data == NULL)
     {
         res.code = 401;
-        copy_str(res.msg, "Nome ou senha devem estar incorretos");
+        copy_str(res.msg, "\n\tNome ou senha devem estar incorretos.");
         return res;
     }
 
     res.code = 200;
-    copy_str(res.msg, "Usuario logado");
+    copy_str(res.msg, "\n\tUsuario logado.");
     return res;
 }
 
@@ -77,7 +75,7 @@ User *append_user(char *name, char *password)
 {
     db_file(User, "r+")
 
-        fseek(fl_User, 0, SEEK_SET);
+    fseek(fl_User, 0, SEEK_SET);
     fprintf(fl_User, HEADER_MASK, (User_amount + 1), User_line_size);
 
     fseek(fl_User, 0, SEEK_END);
@@ -112,7 +110,7 @@ Response signup(char *name, char *password)
     {
         res.code = 400;
         res.data = NULL;
-        sprintf(res.msg, "Usuario %s ja existe", name);
+        sprintf(res.msg, "\n\tUsuario %s ja existe", name);
         free(user);
         return res;
     }
@@ -123,14 +121,13 @@ Response signup(char *name, char *password)
     {
         res.code = 500;
         res.data = NULL;
-        copy_str(res.msg, "Erro ao tentar criar o usuario");
+        copy_str(res.msg, "\n\tErro ao tentar criar o usuario");
         return res;
     }
 
     res.code = 200;
     res.data = user;
-    copy_str(res.msg, "Usuario criado");
-    ;
+    copy_str(res.msg, "\n\tUsuario criado");
 
     return res;
 }

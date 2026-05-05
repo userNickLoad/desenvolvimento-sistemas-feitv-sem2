@@ -19,7 +19,7 @@ void page_inicio(Page *this_p)
     build_page(
         "inicio",
         "\tSeja bem vindo ao feitv!\n\tO seu catalogo de filmes pirat... GRATIS.",
-        "\n\n\t- Como navegar:\n\t\t+ Use as setas do teclado;\n\t\t+ Para fechar o programa precione a tecla [e];",
+        "\n\n\t- Como navegar:\n\n\t\t+ Use as setas do teclado:\n\t\t\t+ Setas para cima e para baixo: navegacao entre opcoes;\n\t\t\t+ Setas para direita e esquerda: navegacao entre paginas;\n\n\t\t+ Para fechar o programa precione a tecla [e];",
         ops,
         nxt,
         NULL,
