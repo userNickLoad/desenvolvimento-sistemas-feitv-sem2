@@ -20,13 +20,13 @@ Response login(char *name, char *password);
 
 void copy_struct(void *to, void *from, int size);
 
-#define free_response(to_free)      \
+#define free_response(to_free, type)      \
     do                              \
     {                               \
         Response *res = to_free;    \
         if (res->data != NULL)      \
         {                           \
-            User *user = res->data; \
+            type *user = res->data; \
             free(user);             \
         }                           \
         free(res);                  \

@@ -10,7 +10,7 @@ User *user_name_password(char *name, char *password)
     for (int i = 0; i < User_amount; i++)
     {
 
-        fscanf(fl_User, USER_SCAN_MASK, &user.id, &user.name, &user.password);
+        fscanf(fl_User, USER_SCAN_MASK, &user.id, user.name, user.password);
         if (compare_str(user.name, name))
         {
 
@@ -57,7 +57,7 @@ User *user_by_name(char *name)
     for (int i = 0; i < User_amount; i++)
     {
 
-        fscanf(fl_User, USER_SCAN_MASK, &user.id, &user.name, &user.password);
+        fscanf(fl_User, USER_SCAN_MASK, &user.id, user.name, user.password);
         if (compare_str(user.name, name))
         {
             res = malloc(sizeof(User));

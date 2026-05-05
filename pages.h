@@ -25,6 +25,7 @@ typedef struct User_loged
     char name[50];
 } User_loged;
 
+
 typedef struct Data
 {
     User_loged user;
@@ -62,11 +63,13 @@ typedef struct Page
 
 dinamic_list_dec(ChangePage, dina_chPage, sizeof(ChangePage))
 
-    void render(Page *page);
+void render(Page *page);
 
 void listening_arrows(Page *page);
 
-void insert_terminal(char *question, char *data, int limit);
+int validateCh_login(char c);
+
+void insert_terminal(char *question, char *data, int limit, int (*verifyFn)(char c));
 
 void clearFn_defualt(Page *this_p);
 

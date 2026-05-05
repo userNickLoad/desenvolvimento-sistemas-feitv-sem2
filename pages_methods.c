@@ -9,7 +9,8 @@
 
 dinamic_list_impl(ChangePage, dina_chPage, sizeof(ChangePage))
 
-void listening_arrows(Page *page) {
+    void listening_arrows(Page *page)
+{
     /*
      *  - Essa função monitora e adiministra a seleção da pagina e possui os seguintes cases:
      *      + Seta para cima faz o cursor subir;
@@ -25,23 +26,26 @@ void listening_arrows(Page *page) {
 
     int c;
 
-    do {
+    do
+    {
         c = getch();
-    } while (!(((c == Arrow_down || c == Arrow_up || c == Arrow_right || c == Enter) && (page->opcoes != NULL)) || c ==
-               Arrow_left || c == E));
+    } while (!(((c == Arrow_down || c == Arrow_up || c == Arrow_right || c == Enter) && (page->opcoes != NULL)) || c == Arrow_left || c == E));
 
-    if (c == Arrow_left) {
+    if (c == Arrow_left)
+    {
         // selected = -2 significa que vai voltar para a pagina anterior
         page->selected = (page->lst != NULL) ? GO_BACK : page->selected;
         return;
     }
 
-    if (c == E) {
+    if (c == E)
+    {
         page->selected = EXIT_APP;
         return;
     }
 
-    if (page->opcoes == NULL) {
+    if (page->opcoes == NULL)
+    {
         return;
     }
 
@@ -49,60 +53,67 @@ void listening_arrows(Page *page) {
 
     const int f_janela = (limit > qtd_itens_janela) ? page->i_janela + qtd_itens_janela : limit;
 
-    switch (c) {
-        case Arrow_down:
-            // se o final da janela for o limite
-            if (f_janela == limit) {
-                // se não selecionamos o ultimo item da lista select++ se não select fica o mesmo
-                page->selected += (page->selected < limit - 1) ? 1 : 0;
-                break; // early return
-            }
+    switch (c)
+    {
+    case Arrow_down:
+        // se o final da janela for o limite
+        if (f_janela == limit)
+        {
+            // se não selecionamos o ultimo item da lista select++ se não select fica o mesmo
+            page->selected += (page->selected < limit - 1) ? 1 : 0;
+            break; // early return
+        }
 
-            // se o final da janela não for o limite E está selecionado o ultimo item DA JANELA TEMOS QUE MOVER
-            if (page->selected == qtd_itens_janela - 1) {
-                // janela desce junto com tudo
-                page->i_janela++;
-                page->selected++;
-                break; // early return
-            }
-
-            // se o final da janela não é o limite E o item selecionado não é o ultimo DESCE SEM MEDO DE SER FELIZ
+        // se o final da janela não for o limite E está selecionado o ultimo item DA JANELA TEMOS QUE MOVER
+        if (page->selected == qtd_itens_janela - 1)
+        {
+            // janela desce junto com tudo
+            page->i_janela++;
             page->selected++;
+            break; // early return
+        }
 
-            break;
+        // se o final da janela não é o limite E o item selecionado não é o ultimo DESCE SEM MEDO DE SER FELIZ
+        page->selected++;
 
-        case Arrow_up:
-            // se o inicio da janela for o primeiro item de todos
-            if (page->i_janela == 0) {
-                // se não está selecionado o primeiro item da lista select-- se está select fica o mesmo
-                page->selected -= (page->selected > 0) ? 1 : 0;
-                break; // early return
-            }
+        break;
 
-            // se o inicio da janela não for o primeiro item de todos E está selecionado o primeiro item DA JANELA TEMOS QUE MOVER
-            if (page->selected == 0) {
-                // janela desce junto com tudo
-                page->i_janela--;
-                page->selected--;
-                break; // early return
-            }
+    case Arrow_up:
+        // se o inicio da janela for o primeiro item de todos
+        if (page->i_janela == 0)
+        {
+            // se não está selecionado o primeiro item da lista select-- se está select fica o mesmo
+            page->selected -= (page->selected > 0) ? 1 : 0;
+            break; // early return
+        }
 
-            // se o final da janela não é o limite E o item selecionado não é o ultimo DESCE SEM MEDO DE SER FELIZ
+        // se o inicio da janela não for o primeiro item de todos E está selecionado o primeiro item DA JANELA TEMOS QUE MOVER
+        if (page->selected == 0)
+        {
+            // janela desce junto com tudo
+            page->i_janela--;
             page->selected--;
+            break; // early return
+        }
 
-            break;
+        // se o final da janela não é o limite E o item selecionado não é o ultimo DESCE SEM MEDO DE SER FELIZ
+        page->selected--;
 
-        case P:
-            page->selected = SEARCH;
+        break;
 
-        default:
-            // selected = -1 significa que vai avançar para a próxima pagina com base na opção selecionada
-            page->selected = GO_FORD;
+    case P:
+        page->selected = SEARCH;
+
+    default:
+        // selected = -1 significa que vai avançar para a próxima pagina com base na opção selecionada
+        page->selected = GO_FORD;
     }
 }
 
-void render_options_default(Page *page, int i) {
-    if (i == page->selected) {
+void render_options_default(Page *page, int i)
+{
+    if (i == page->selected)
+    {
         printf("\t\t---> [%d]: %s;\n", i, page->opcoes[i]);
         return;
     }
@@ -110,21 +121,49 @@ void render_options_default(Page *page, int i) {
     printf("\t\t- [%d]: %s;\n", i, page->opcoes[i]);
 }
 
-void insert_terminal(char *question, char *data, int limit) {
+int validateCh_login(char c)
+{
+    return (
+        ((int)'0' <= (int)c && (int)c <= (int)'9') ||
+        ((int)'a' <= (int)c && (int)c <= (int)'z') ||
+        ((int)'A' <= (int)c && (int)c <= (int)'Z') ||
+        (c == '_')
+    );
+}
 
-    int lst = 0;
+void insert_terminal(char *question, char *data, int limit, int (*verifyFn)(char c))
+{
+    int lst;
     char c;
-    data[lst] = '\0';
-    
+
+    for (int i = 0; i < limit; i++)
+    {
+        if (data[i] == '\0')
+        {
+            lst = i;
+            break;
+        }
+        if (i == limit - 1)
+        {
+            lst = 0;
+            data[0] = '\0';
+        }
+    }
+
     printf("\t - %s: ", question);
+    printf("%s", data);
 
-
-    while ((c = getch()) != Enter) {
-        if (c == '\b' && lst > 0) {
+    while ((c = getch()) != Enter)
+    {
+        if ((c == Arrow_left || c == '\b') && lst > 0)
+        {
             data[lst] = '\0';
             lst--;
             printf("\b \b");
-        } else if (lst < limit && c != ' ' && c != ';' && c != ',' && c != '.' && c != '\0' && c != '\b') {
+            continue;
+        }
+        else if (lst < limit && verifyFn(c))
+        {
             data[lst] = c;
             lst++;
             data[lst] = '\0';
@@ -133,28 +172,32 @@ void insert_terminal(char *question, char *data, int limit) {
     }
 }
 
-char **add_opcao(char *op, char **ops, int size) {
+char **add_opcao(char *op, char **ops, int size)
+{
     char *crr = malloc(sizeof(char) * size);
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
+    {
         crr[i] = op[i];
         if (op[i] == '\0')
             break;
     }
 
-    ops = (char **) dina_prt_add(crr, (void **) ops);
+    ops = (char **)dina_prt_add(crr, (void **)ops);
 
     return ops;
 }
 
-
-void free_opcoes(char **ops) {
-    for (int i = 0; i < dinamic_size(ops); i++) {
+void free_opcoes(char **ops)
+{
+    for (int i = 0; i < dinamic_size(ops); i++)
+    {
         free(ops[i]);
     }
     dinamic_free(void *, ops);
 }
 
-void render(Page *page) {
+void render(Page *page)
+{
     /*
      * - Essa função é responsavel por colocar na tela tudo o q o usuário precisa, incluindo:
      *      + Um link no header, aprenas para que facilite a localização;
@@ -164,55 +207,68 @@ void render(Page *page) {
      */
     node_char_ptr *crr_link = page->link->head;
 
-    while (crr_link != NULL) {
+    while (crr_link != NULL)
+    {
         printf("%s/", crr_link->value);
         crr_link = crr_link->nxt;
     }
 
     printf("\n\n");
 
-    if (page->description != NULL) {
+    if (page->description != NULL)
+    {
         printf("%s", page->description);
 
         printf("\n\n");
     }
 
-    if (page->opcoes != NULL) {
+    if (page->opcoes != NULL)
+    {
         const int limit = dinamic_size(page->opcoes);
 
         const int f_janela = (limit > qtd_itens_janela) ? page->i_janela + qtd_itens_janela : limit;
 
-        for (int i = page->i_janela; i < f_janela; i++) {
+        for (int i = page->i_janela; i < f_janela; i++)
+        {
             page->render_options(page, i);
         }
     }
 
-    if (page->question != NULL) {
+    if (page->question != NULL)
+    {
         printf("%s", page->question);
     }
 }
 
-void clearFn_defualt(Page *this_p) {
-   
-    if (this_p->opcoes != NULL)
-        free_opcoes(this_p->opcoes);
+void clearFn_defualt(Page *this_p)
+{
 
-    if (this_p->nxt != NULL){
-        dinamic_free(ChangePage, this_p->nxt);
+    if (this_p->opcoes != NULL)
+    {
+        free_opcoes(this_p->opcoes);
+        this_p->opcoes = NULL;
     }
-    
-    if (this_p->lst != NULL){
-        free(this_p->lst);
+    if (this_p->nxt != NULL)
+    {
+        dinamic_free(ChangePage, this_p->nxt);
+        this_p->nxt = NULL;
+    }
+    if (this_p->lst != NULL)
+    {
+        free((ChangePage *)this_p->lst);
+        this_p->lst = NULL;
     }
 }
 
-ChangePage selectFn_default(Page *this_p, int lst_selected){
+ChangePage selectFn_default(Page *this_p, int lst_selected)
+{
     return this_p->nxt[lst_selected];
 }
 
 void build_page(char *title, char *description, char *question, char **opcoes, ChangePage *nxt, ChangePage *lst, void *selectFn,
-                void *render_options, void *action, Page *this_p) {
-    
+                void *render_options, void *action, Page *this_p)
+{
+
     // if(clearFn == NULL){
     //     this_p->clearFn = clearFn_defualt;
     // }
@@ -220,19 +276,22 @@ void build_page(char *title, char *description, char *question, char **opcoes, C
     //     this_p->clearFn = clearFn;
     // }
 
-    if(selectFn == NULL)
+    if (selectFn == NULL)
         this_p->selectFn = selectFn_default;
     else
         this_p->selectFn = selectFn;
 
-    if (lst == NULL && this_p->link != NULL) {
+    if (lst == NULL && this_p->link != NULL)
+    {
         free_Str(this_p->link);
         this_p->link = NULL;
     }
 
-    if (this_p->link == NULL) {
+    if (this_p->link == NULL)
+    {
         this_p->link = Str_init_list();
         this_p->data.payload = NULL;
+        this_p->data.response = NULL;
     }
 
     add_Str(title, this_p->link);
@@ -241,9 +300,13 @@ void build_page(char *title, char *description, char *question, char **opcoes, C
     this_p->description = description;
     this_p->question = question;
     this_p->opcoes = opcoes;
-    if (render_options == NULL) {
+
+    if (render_options == NULL)
+    {
         this_p->render_options = render_options_default;
-    } else {
+    }
+    else
+    {
         this_p->render_options = render_options;
     }
     this_p->action = action;
@@ -251,15 +314,16 @@ void build_page(char *title, char *description, char *question, char **opcoes, C
     this_p->i_janela = 0;
     this_p->lst = lst;
     this_p->nxt = nxt;
-    
 
     return;
 }
 
-void live_page(Page *this_p) {
+void live_page(Page *this_p)
+{
     CLEAR_TERMINAL
 
-    if (this_p->selected < 0) {
+    if (this_p->selected < 0)
+    {
         this_p->selected = 0;
     }
 
@@ -273,38 +337,40 @@ void live_page(Page *this_p) {
     if (this_p->opcoes == NULL && this_p->action != NULL)
         this_p->action(this_p);
 
+    switch (this_p->selected)
+    {
+    case EXIT_APP:
+        exit(0);
+        break;
+    case GO_BACK:
+    {
+        pop_Str(this_p->link);
+        pop_Str(this_p->link);
 
-    switch (this_p->selected) {
-        case EXIT_APP:
-            exit(0);
-            break;
-        case GO_BACK: {
-            pop_Str(this_p->link);
-            pop_Str(this_p->link);
+        ChangePage build_p = *this_p->lst;
 
-            ChangePage build_p = this_p->lst[0];
-            
-            clearFn_defualt(this_p);
+        clearFn_defualt(this_p);
 
-            if(build_p.free_all)
-                build_p.free_all(this_p);
+        if (build_p.free_all)
+            build_p.free_all(this_p);
 
-            build_p.build(this_p);
+        build_p.build(this_p);
 
-            break;
-        }
-        case GO_FORD:{
-            ChangePage build_p = this_p->selectFn(this_p, lst_selecet);
+        break;
+    }
+    case GO_FORD:
+    {
+        ChangePage build_p = this_p->selectFn(this_p, lst_selecet);
 
-            clearFn_defualt(this_p);
-            
-            if(build_p.free_all)
-                build_p.free_all(this_p);
-            
-            build_p.build(this_p);
-            break;
-        }
-        default:
-            break;
+        clearFn_defualt(this_p);
+
+        if (build_p.free_all)
+            build_p.free_all(this_p);
+
+        build_p.build(this_p);
+        break;
+    }
+    default:
+        break;
     }
 }

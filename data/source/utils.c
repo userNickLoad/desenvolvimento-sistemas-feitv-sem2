@@ -34,5 +34,5 @@ void ajust_info(char *stream, char *src, int size, char end_char){
     for (int i = 0; i < size-1; i++)
         stream[i] = ' ';
     copy_str(stream, src);
-    stream[size-1] = ';';
+    stream[size-1] = end_char;
 }
