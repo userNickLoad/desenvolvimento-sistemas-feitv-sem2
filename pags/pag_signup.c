@@ -60,7 +60,6 @@ void signup_request(Page *this_p)
 
 void page_signup(Page *this_p)
 {
-
     User *user;
     if (this_p->data.payload == NULL)
     {

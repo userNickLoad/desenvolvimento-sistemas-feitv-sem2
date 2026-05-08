@@ -13,6 +13,8 @@ typedef struct Video
     char name[50];
     char desc[250];
     unsigned int duration; //00:00:00 -> segundos de  0 a 4.294.967.295
+    unsigned int likes;
+    unsigned int dislikes;
 } Video;
 
 typedef struct Dislike

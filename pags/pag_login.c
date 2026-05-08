@@ -59,7 +59,7 @@ void login_request(Page *this_p)
     this_p->data.user.id = user->id;
     copy_str(this_p->data.user.name, user->name);
     free(user);
-    page_inicio(this_p);
+    page_home(this_p);
 }
 
 void page_login(Page *this_p)
@@ -89,9 +89,9 @@ void page_login(Page *this_p)
     ops = add_opcao(ops2, ops, sizeof(ops2));
 
     add_nxt_pag(lg_name, NULL, nxt)
-        add_nxt_pag(lg_password, NULL, nxt)
+    add_nxt_pag(lg_password, NULL, nxt)
 
-            if (user->name[0] != '\0' && user->password[0] != '\0')
+    if (user->name[0] != '\0' && user->password[0] != '\0')
     {
         ops = add_opcao("Entrar", ops, 11);
         add_nxt_pag(login_request, NULL, nxt)

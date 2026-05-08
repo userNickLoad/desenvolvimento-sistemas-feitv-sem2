@@ -85,6 +85,12 @@ void page_login(Page *this_p);
 
 void page_signup(Page *this_p);
 
+void page_home(Page *this_p);
+
+void page_look_vids(Page *this_p);
+
+void page_look_playlists(Page *this_p);
+
 #define add_nxt_pag(pageFn_, free_before, list)  \
     do                                           \
     {                                            \

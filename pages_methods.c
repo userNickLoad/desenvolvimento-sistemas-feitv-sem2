@@ -157,8 +157,8 @@ void insert_terminal(char *question, char *data, int limit, int (*verifyFn)(char
     {
         if ((c == Arrow_left || c == '\b') && lst > 0)
         {
-            data[lst] = '\0';
             lst--;
+            data[lst] = '\0';
             printf("\b \b");
             continue;
         }
