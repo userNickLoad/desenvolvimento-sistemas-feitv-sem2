@@ -3,7 +3,7 @@
 #include "../../schema.h"
 #include "../../header.h"
 
-#define USER_SCAN_MASK "%10u;%50[^;];%20[^\n]\n"
+#define USER_SCAN_MASK "%10u;%50[^;];%20[^;]\n"
 #define USER_PRINT_MASK "%010u;%-50s;%-20s\n"
 #define HEADER_MASK "%010u;%010u\n"
 
@@ -53,7 +53,8 @@ void ajust_info(char *stream, char *src, int size, char end_char);
                                                                          \
     fscanf(fl_##file, "%010u;%010u", &file##_amount, &file##_line_size); \
                                                                          \
-    fseek(fl_##file, 22, SEEK_SET);
+    fseek(fl_##file, 22, SEEK_SET);\
+
 
 int compare_str(char *str1, char *str2);
 
