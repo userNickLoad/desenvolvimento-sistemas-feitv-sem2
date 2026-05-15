@@ -5,6 +5,10 @@
 
 #define USER_SCAN_MASK "%10u;%50[^;];%20[^\n]\n"
 #define USER_PRINT_MASK "%010u;%-50s;%-20s\n"
+
+#define VIDEO_SCAN_MASK "%10u;%50[^;];%250[^;];%10u;%10u;%10u\n"
+#define VIDEO_PRINT_MASK "%010u;%-50;%-250;%010u;%010u;%010u\n"
+
 #define HEADER_MASK "%010u;%010u\n"
 
 typedef struct Response

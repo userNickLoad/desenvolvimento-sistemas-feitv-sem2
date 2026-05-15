@@ -12,7 +12,6 @@ void page_home(Page *this_p) {
     add_opcao("Ver suas playlists", ops, 20);
     add_nxt_pag(page_look_playlists, NULL, nxt);
 
-
     build_page(
         "home",
         "\tSeja bem vindo!\n\n\tEscolha uma das opcoes a baixo para comecar sua experiencia: ",
