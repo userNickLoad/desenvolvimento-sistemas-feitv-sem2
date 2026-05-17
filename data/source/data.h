@@ -12,23 +12,6 @@
 #define HEADER_MASK "%010u;%010u\n"
 #define HEARDER_SIZE 23
 
-typedef struct Avl
-{
-    struct Node *head;
-    unsigned elements;
-    void (*free_values)(void *value_prt);
-    int (*compare_strat)(void *val1,void *val2);
-} Avl;
-
-typedef struct Node
-{
-    unsigned int height;
-    void * value;
-    struct Node *left;
-    struct Node *right;
-
-} Node;
-
 
 typedef struct Response
 {
@@ -40,6 +23,8 @@ typedef struct Response
 Response signup(char *name, char *password);
 
 Response login(char *name, char *password);
+
+Response search_for_videos(char *title);
 
 void copy_struct(void *to, void *from, int size);
 

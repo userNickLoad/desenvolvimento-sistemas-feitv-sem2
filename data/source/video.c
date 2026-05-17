@@ -1,7 +1,5 @@
 #include "data.h"
-
-Video *apend_video_idx_name(Video *vid){
-    db_file(Video, "r+")}
+#include "../../lists.h"
 
 Video *apend_video(Video *vid)
 {
@@ -31,283 +29,78 @@ Video *apend_video(Video *vid)
     return vid;
 }
 
-Avl *init_btree(int (*compare_strat)(void *val1, void *val2), void (*free_values)(void *values_prt))
+
+Video *get_vids()
 {
-    Avl *tree = malloc(sizeof(Avl));
-    if (tree == NULL)
-    {
-        fprintf(stderr, "Erro ao tentar criar arvore");
-        return NULL;
-    }
-
-    tree->elements = 0;
-    tree->head = NULL;
-    tree->compare_strat = compare_strat;
-    tree->free_values = free_values;
-
-    return tree;
-}
-
-void free_node(Node *n, void (*free_values)(void *value_ptr))
-{
-    if (n == NULL)
-        return;
-
-    free_node(n->left, free_values);
-    free_node(n->right, free_values);
-
-    free_values(n->value);
-
-    free(n);
-
-    return;
-}
-
-void free_btree(Avl *tree)
-{
-    free_node(tree->head, tree->free_values);
-    free(tree);
-}
-
-Node *init_node(void *prt_value)
-{
-    Node *n = malloc(sizeof(Node));
-    if (n == NULL)
-    {
-        fprintf(stderr, "Erro ao criar o node");
-        return NULL;
-    }
-
-    n->value = prt_value;
-    n->height = 0;
-    n->left = NULL;
-    n->right = NULL;
-
-    return n;
-}
-
-void node_h(Node *n)
-{
-    int left_height = ((n->right != NULL) ? n->right->height : 0);
-    int right_height = ((n->left != NULL) ? n->left->height : 0);
-    n->height = ((left_height > right_height) ? left_height : right_height) + 1;
-    return;
-}
-
-Node *rotation_ll(Node *crr_node)
-{
-    Node *above = crr_node;
-    Node *middle = above->left;
-
-    // preserva subárvore intermediária
-    above->left = middle->right;
-
-    // rotação
-    middle->right = above;
-
-    // atualiza alturas
-    node_h(above);
-    node_h(middle);
-
-    return middle;
-}
-
-Node *rotation_rr(Node *crr_node)
-{
-    Node *above = crr_node;
-    Node *middle = above->right;
-
-    // preserva subárvore intermediária
-    above->right = middle->left;
-
-    // rotação
-    middle->left = above;
-
-    // atualiza alturas
-    node_h(above);
-    node_h(middle);
-
-    return middle;
-}
-
-Node *rotation_lr(Node *crr_node)
-{
-    // primeiro roda RR no filho esquerdo
-    crr_node->left = rotation_rr(crr_node->left);
-
-    // depois LL no nó atual
-    return rotation_ll(crr_node);
-}
-
-Node *rotation_rl(Node *crr_node)
-{
-    // primeiro roda LL no filho direito
-    crr_node->right = rotation_ll(crr_node->right);
-
-    // depois RR no nó atual
-    return rotation_rr(crr_node);
-}
-
-Node *make_balance(Node *crr_node, int (*compare_strat)(void *val1, void *val2))
-{
-    // R-L
-    if (crr_node->right != NULL && crr_node->right->left != NULL)
-    {
-        return rotation_rl(crr_node);
-    }
-
-    // L-R
-    if (crr_node->left != NULL && crr_node->left->right != NULL)
-    {
-        return rotation_lr(crr_node);
-    }
-
-    // R-R
-    if (crr_node->right != NULL && crr_node->right->right != NULL)
-    {
-        return rotation_rr(crr_node);
-    }
-
-    // L-L
-    if (crr_node->left != NULL && crr_node->left->left)
-    {
-        return rotation_ll(crr_node);
-    }
-
-}
-
-Node *palece_node(Node *crr_node, Node *new_node, int (*compare_strat)(void *val1, void *val2))
-{
-    int is_greater = compare_strat(crr_node->value, new_node->value);
-
-    do
-    {
-        if (is_greater && crr_node->right == NULL)
-        {
-            crr_node->right = new_node;
-            break;
-        }
-        if (!is_greater && crr_node->left == NULL)
-        {
-            crr_node->left = new_node;
-            break;
-        }
-        if (is_greater && crr_node->right != NULL)
-        {
-            crr_node->right = palece_node(crr_node->right, new_node, compare_strat);
-            break;
-        }
-        if (!is_greater && crr_node->left != NULL)
-        {
-            crr_node->left = palece_node(crr_node->left, new_node, compare_strat);
-            break;
-        }
-    } while (0);
-
-    int left_height = ((crr_node->right != NULL) ? crr_node->right->height : 0);
-    int right_height = ((crr_node->left != NULL) ? crr_node->left->height : 0);
-    int balance = left_height - right_height;
-
-    if (!(-1 <= balance && balance <= 1))
-    {
-        crr_node = make_balance(crr_node, compare_strat);
-    }
-
-    node_h(crr_node);
-
-    return crr_node;
-}
-
-Avl *add_node(Avl *tree, void *prt_value)
-{
-    tree->elements++;
-    Node *new_node = init_node(prt_value);
-
-    if (new_node == NULL)
-    {
-        return NULL;
-    }
-
-    if (tree->head == NULL)
-    {
-        tree->head = new_node;
-        return tree;
-    }
-
-    tree->head = palece_node(tree->head, new_node, tree->compare_strat);
-}
-
-void show_tree(Node *crr_node)
-{
-    if (crr_node == NULL)
-        return;
-    
-    show_tree(crr_node->left);
-
-    printf("Titulo: %s\n", ((Video *)crr_node->value)->name);
-
-    show_tree(crr_node->right);
-
-    
-}
-
-void free_name(void *name)
-{
-    return;
-}
-
-int name_strat(void *vid1, void *vid2)
-{
-    Video *video1 = (Video *)vid1;
-    Video *video2 = (Video *)vid2;
-   
-    int ord = is_alfab(video1->name, video2->name, sizeof(video1->name));
-
-    return ord;
-}
-
-void *func()
-{
-
     db_file(Video, "r")
 
-        db_file(Video_idx_name, "r+")
+    Video * vids = malloc(sizeof(Video) * Video_amount);
 
-            Video *vids = malloc(sizeof(Video) * Video_amount);
-
-    fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
-
-    for (int i = 0; i < Video_amount; i++)
-    {
+    for(int i = 0; i < Video_amount; i++)
+    {   
         fscanf(fl_Video, VIDEO_SCAN_MASK, &vids[i].id, vids[i].name, vids[i].desc, &vids[i].duration, &vids[i].likes, &vids[i].dislikes);
     }
 
-    Avl *tree = init_btree(name_strat, free_name);
-    printf("Sem organizacao: \n\n");
-
-    for (int i = 0; i < Video_amount; i++)
-    {
-        printf("Titulo: %s\n", vids[i].name);
-        add_node(tree, &vids[i]);
-    }
-    printf("\n\n\nCom organizacao %d: \n\n", tree->elements);
-
-    show_tree(tree->head);
-
-    // printf("Foi")
-
-    // 0000000000;                                                  ;0000000000;0000000000;0000000000
-
-    free_btree(tree);
-
-    free(vids);
+    return vids;
 
     fclose(fl_Video);
-    // fclose(fl_Video_idx_name);
 }
 
-int main()
+int compare_titles(char *title1, char *title2, int size)
 {
-    func();
+    for (int i = 0; i < size; i++)
+    {
+        if(title1[i] != title2[i]) return 0;
+        if(title1 == '\0') return 1;
+    }
     return 0;
+}
+
+Video *search_vids(char *title)
+{
+    db_file(Video, "r")
+
+    Video * vids = dina_prt_init(Video_amount);
+
+    for(int i = 0; i < Video_amount; i++)
+    {   
+        Video vid;
+        fscanf(fl_Video, VIDEO_SCAN_MASK, &vid.id, vid.name, vid.desc, &vid.duration, &vid.likes, &vid.dislikes);
+
+        if(compare_titles(title, vid.name, sizeof(vid.name))){
+            Video * vid_selec = malloc(sizeof(Video));
+            copy_struct(vid_selec, &vid, sizeof(vid));
+            dina_prt_add(vid_selec, vids);
+        }
+    }
+        fclose(fl_Video);
+
+    return vids;
+}
+
+Response search_for_videos(char *title)
+{   
+    Response res;
+    if (title == NULL)
+    {
+        res.code = 200;
+        res.data = get_vids();
+        return res;
+    }
+
+    Video *vids = search_vids(title);
+
+    if (dinamic_size(vids) < 0)
+    {
+        res.code = 400;
+        res.data = NULL;
+        fprintf(res.msg, "Nenhum resultado: %s", title);
+        dinamic_free(void *, vids)
+        return res;
+    }
+    res.code = 200;
+    res.data = vids;
+
+    return res;
+
 }
