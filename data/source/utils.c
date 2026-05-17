@@ -61,9 +61,3 @@ int is_alfab(char *str1, char *str2, int size)
 	}
 	return 2;
 }
-
-int rotation_right(Node *high)
-{
-	high->lst->lst = high->left;
-	high->left = high->left;
-}

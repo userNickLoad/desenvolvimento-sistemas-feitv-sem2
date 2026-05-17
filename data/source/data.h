@@ -12,15 +12,22 @@
 #define HEADER_MASK "%010u;%010u\n"
 #define HEARDER_SIZE 23
 
+typedef struct Avl
+{
+    struct Node *head;
+    unsigned elements;
+    void (*free_values)(void *value_prt);
+    int (*compare_strat)(void *val1,void *val2);
+} Avl;
+
 typedef struct Node
 {
     unsigned int height;
     void * value;
-    Node *left;
-    Node *right;
-    Node *lst;
-} Node;
+    struct Node *left;
+    struct Node *right;
 
+} Node;
 
 
 typedef struct Response
