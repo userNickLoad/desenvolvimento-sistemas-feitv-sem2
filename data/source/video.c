@@ -1,8 +1,5 @@
 #include "data.h"
-
-Video* apend_video_idx_name(Video *vid){
-    db_file(Video, "r+")
-}
+#include "../../lists.h"
 
 Video *apend_video(Video *vid)
 {   
@@ -33,25 +30,77 @@ Video *apend_video(Video *vid)
 }
 
 
-int main()
-{   
+Video *get_vids()
+{
     db_file(Video, "r")
-    db_file(Video_idx_name, "r+")
 
-    Video *vids = malloc(sizeof(vids)*Video_amount);
-
-    fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
+    Video * vids = malloc(sizeof(Video) * Video_amount);
 
     for(int i = 0; i < Video_amount; i++)
-    {
+    {   
         fscanf(fl_Video, VIDEO_SCAN_MASK, &vids[i].id, vids[i].name, vids[i].desc, &vids[i].duration, &vids[i].likes, &vids[i].dislikes);
     }
 
-    //0000000000;                                                  ;0000000000;0000000000;0000000000
-
-    
+    return vids;
 
     fclose(fl_Video);
-    fclose(fl_Video_idx_name);
+}
+
+int compare_titles(char *title1, char *title2, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        if(title1[i] != title2[i]) return 0;
+        if(title1 == '\0') return 1;
+    }
     return 0;
+}
+
+Video *search_vids(char *title)
+{
+    db_file(Video, "r")
+
+    Video * vids = dina_prt_init(Video_amount);
+
+    for(int i = 0; i < Video_amount; i++)
+    {   
+        Video vid;
+        fscanf(fl_Video, VIDEO_SCAN_MASK, &vid.id, vid.name, vid.desc, &vid.duration, &vid.likes, &vid.dislikes);
+
+        if(compare_titles(title, vid.name, sizeof(vid.name))){
+            Video * vid_selec = malloc(sizeof(Video));
+            copy_struct(vid_selec, &vid, sizeof(vid));
+            dina_prt_add(vid_selec, vids);
+        }
+    }
+        fclose(fl_Video);
+
+    return vids;
+}
+
+Response search_for_videos(char *title)
+{   
+    Response res;
+    if (title == NULL)
+    {
+        res.code = 200;
+        res.data = get_vids();
+        return res;
+    }
+
+    Video *vids = search_vids(title);
+
+    if (dinamic_size(vids) < 0)
+    {
+        res.code = 400;
+        res.data = NULL;
+        fprintf(res.msg, "Nenhum resultado: %s", title);
+        dinamic_free(void *, vids)
+        return res;
+    }
+    res.code = 200;
+    res.data = vids;
+
+    return res;
+
 }

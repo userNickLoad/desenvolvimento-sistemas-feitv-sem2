@@ -12,16 +12,6 @@
 #define HEADER_MASK "%010u;%010u\n"
 #define HEARDER_SIZE 23
 
-typedef struct Node
-{
-    unsigned int height;
-    void * value;
-    Node *left;
-    Node *right;
-    Node *lst;
-} Node;
-
-
 
 typedef struct Response
 {
@@ -33,6 +23,8 @@ typedef struct Response
 Response signup(char *name, char *password);
 
 Response login(char *name, char *password);
+
+Response search_for_videos(char *title);
 
 void copy_struct(void *to, void *from, int size);
 
