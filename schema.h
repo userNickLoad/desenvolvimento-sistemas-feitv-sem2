@@ -7,6 +7,15 @@ typedef struct User
     char password[20];
 } User;
 
+typedef struct User_idx_name
+{
+    unsigned int prt_original;
+    char value[50];
+    unsigned int height;
+    unsigned int left;
+    unsigned int right;
+} User_idx_name;
+
 typedef struct Video
 {
     unsigned int id;
@@ -16,6 +25,15 @@ typedef struct Video
     unsigned int likes;
     unsigned int dislikes;
 } Video;
+
+typedef struct Video_idx_name
+{
+    unsigned int prt_original;
+    char value[50];
+    unsigned int height;
+    unsigned int left;
+    unsigned int right;
+} Video_idx_name;
 
 typedef struct Dislike
 {

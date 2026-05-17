@@ -9,25 +9,17 @@
 #define VIDEO_SCAN_MASK "%10u;%50[^;];%250[^;];%10u;%10u;%10u\n"
 #define VIDEO_PRINT_MASK "%010u;%-50s;%-250s;%010u;%010u;%010u\n"
 
+#define VIDEO_IDX_NAME_SACN_MASK "%10u;%50[^;];%10u;%10u;%10u\n"
+#define VIDEO_IDX_NAME_PRINT_MASK "%010u;%-50s;%010u;%010u;%010u\n"
+
+//Amount;Ln_size
 #define HEADER_MASK "%010u;%010u\n"
 #define HEARDER_SIZE 23
 
-typedef struct Avl
-{
-    struct Node *head;
-    unsigned elements;
-    void (*free_values)(void *value_prt);
-    int (*compare_strat)(void *val1,void *val2);
-} Avl;
+//Amount;Ln_size;Head\n
+#define IDX_HEADER_MASK "%010u;%010u;%010u\n"
+#define IDX_HEARDER_SIZE 34
 
-typedef struct Node
-{
-    unsigned int height;
-    void * value;
-    struct Node *left;
-    struct Node *right;
-
-} Node;
 
 
 typedef struct Response

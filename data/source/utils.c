@@ -1,5 +1,6 @@
 #include "data.h"
 #include <windows.h>
+#include "../../btree.h"
 
 int compare_str(char *str1, char *str2)
 {
@@ -61,3 +62,4 @@ int is_alfab(char *str1, char *str2, int size)
 	}
 	return 2;
 }
+
