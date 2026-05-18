@@ -7,7 +7,7 @@ void page_home(Page *this_p) {
     ChangePage *nxt =  dina_chPage_init(2);
 
     add_opcao("Buscar por videos", ops, 20);
-    add_nxt_pag(page_look_vids, NULL, nxt);
+    add_nxt_pag(request_vids, NULL, nxt);
 
     add_opcao("Ver suas playlists", ops, 20);
     add_nxt_pag(page_look_playlists, NULL, nxt);

@@ -40,10 +40,9 @@ Video *get_vids()
     {   
         fscanf(fl_Video, VIDEO_SCAN_MASK, &vids[i].id, vids[i].name, vids[i].desc, &vids[i].duration, &vids[i].likes, &vids[i].dislikes);
     }
-
-    return vids;
-
     fclose(fl_Video);
+    
+    return vids;
 }
 
 int compare_titles(char *title1, char *title2, int size)
@@ -60,7 +59,7 @@ Video *search_vids(char *title)
 {
     db_file(Video, "r")
 
-    Video * vids = dina_prt_init(Video_amount);
+    Video * vids = (Video *)dina_prt_init(Video_amount);
 
     for(int i = 0; i < Video_amount; i++)
     {   
@@ -70,7 +69,7 @@ Video *search_vids(char *title)
         if(compare_titles(title, vid.name, sizeof(vid.name))){
             Video * vid_selec = malloc(sizeof(Video));
             copy_struct(vid_selec, &vid, sizeof(vid));
-            dina_prt_add(vid_selec, vids);
+            dina_prt_add((void *)vid_selec, (void *)vids);
         }
     }
         fclose(fl_Video);
@@ -94,7 +93,7 @@ Response search_for_videos(char *title)
     {
         res.code = 400;
         res.data = NULL;
-        fprintf(res.msg, "Nenhum resultado: %s", title);
+        printf(res.msg, "Nenhum resultado: %s", title);
         dinamic_free(void *, vids)
         return res;
     }

@@ -1,7 +1,7 @@
 CFLAGS = -g -O0 -Wall
 
-all: main.o pag_inicio.o pages_methods.o lists.o pag_login.o pag_signup.o data_utils.o user.o pag_home.o pag_look_vids.o pag_look_playlists.o
-	gcc $(CFLAGS) obj/main.o obj/lists.o obj/pag_inicio.o obj/pages_methods.o obj/pag_login.o obj/pag_signup.o obj/user.o obj/data_utils.o obj/pag_home.o obj/pag_look_vids.o obj/pag_look_playlists.o -o main
+all: main.o pag_inicio.o pages_methods.o lists.o pag_login.o pag_signup.o data_utils.o user.o pag_home.o pag_look_vids.o pag_look_playlists.o video.o
+	gcc $(CFLAGS) obj/main.o obj/lists.o obj/pag_inicio.o obj/pages_methods.o obj/pag_login.o obj/pag_signup.o obj/user.o obj/data_utils.o obj/pag_home.o obj/pag_look_vids.o obj/pag_look_playlists.o obj/video.o -o main
 
 main.o: main.c
 	gcc $(CFLAGS) -c main.c -o obj/main.o
@@ -29,6 +29,9 @@ pages_methods.o: pages_methods.c
 
 user.o: data/source/user.c
 	gcc $(CFLAGS) -c data/source/user.c -o obj/user.o
+
+video.o: data/source/video.c
+	gcc $(CFLAGS) -c data/source/video.c -o obj/video.o
 
 data_utils.o: data/source/utils.c
 	gcc $(CFLAGS) -c data/source/utils.c -o obj/data_utils.o
