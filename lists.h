@@ -159,15 +159,19 @@ typedef char *char_ptr;
 
 typedef char **str_ptr;
 
-declara_list_dec(char_ptr, Str);
+typedef void *ptr;
 
 dinamic_list_dec(char, dina_char, 0);
 
 dinamic_list_dec(void *, dina_prt, 0);
 
+declara_list_dec(ptr, prt_l);
 
+void add_title(char *title, prt_l_list *title_l);
 
+void pop_title(prt_l_list *title_l);
 
+void free_title(prt_l_list *title_l);
 
 
 #endif

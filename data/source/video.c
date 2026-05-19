@@ -43,6 +43,8 @@ int compare_titles(char *title1, char *title2, int size)
 void *erase_like(unsigned int user_id, unsigned int video_id)
 {
     db_file(Like, "r+")
+
+    fseek(fl_Like, HEARDER_SIZE, 0);
     
     for(int i = 0; i < Like_amount; i++)
     {   
@@ -50,10 +52,11 @@ void *erase_like(unsigned int user_id, unsigned int video_id)
         fscanf(fl_Like, LIKE_SCAN_MASK, &like.user_id, &like.video_id);
         
         if(like.user_id == user_id && like.video_id == video_id){
-            for (int j = i+1; j < Like_amount; j++)
+            for (int j = i; j < Like_amount; j++)
             {   
+                fseek(fl_Like, ((j+1)*Like_line_size + HEARDER_SIZE), SEEK_SET);
                 fscanf(fl_Like, LIKE_SCAN_MASK, &like.user_id, &like.video_id);
-                fseek(fl_Like, (-Like_line_size), SEEK_CUR);
+                fseek(fl_Like, (j*Like_line_size + HEARDER_SIZE), SEEK_SET);
                 fprintf(fl_Like, LIKE_PRINT_MASK, like.user_id, like.video_id);
             }
             break;
@@ -61,7 +64,9 @@ void *erase_like(unsigned int user_id, unsigned int video_id)
     }
 
     fseek(fl_Like, 0, SEEK_SET);
-    fprintf(fl_Like, LIKE_PRINT_MASK, Like_amount-1, Like_line_size);
+    fprintf(fl_Like, HEADER_MASK, (Like_amount-1), Like_line_size);
+
+    fclose(fl_Like);
 
     return NULL;
 }
@@ -69,6 +74,8 @@ void *erase_like(unsigned int user_id, unsigned int video_id)
 void *erase_dislike(unsigned int user_id, unsigned int video_id)
 {
     db_file(Dislike, "r+")
+
+    fseek(fl_Dislike, HEARDER_SIZE, 0);
     
     for(int i = 0; i < Dislike_amount; i++)
     {   
@@ -76,10 +83,11 @@ void *erase_dislike(unsigned int user_id, unsigned int video_id)
         fscanf(fl_Dislike, LIKE_SCAN_MASK, &Dislike.user_id, &Dislike.video_id);
         
         if(Dislike.user_id == user_id && Dislike.video_id == video_id){
-            for (int j = i+1; j < Dislike_amount; j++)
+            for (int j = i; j < Dislike_amount; j++)
             {   
+                fseek(fl_Dislike, ((j+1)*Dislike_line_size + HEARDER_SIZE), SEEK_SET);
                 fscanf(fl_Dislike, LIKE_SCAN_MASK, &Dislike.user_id, &Dislike.video_id);
-                fseek(fl_Dislike, (-Dislike_line_size), SEEK_CUR);
+                fseek(fl_Dislike, ((j)*Dislike_line_size + HEARDER_SIZE), SEEK_SET);
                 fprintf(fl_Dislike, LIKE_PRINT_MASK, Dislike.user_id, Dislike.video_id);
             }
             break;
@@ -87,7 +95,9 @@ void *erase_dislike(unsigned int user_id, unsigned int video_id)
     }
 
     fseek(fl_Dislike, 0, SEEK_SET);
-    fprintf(fl_Dislike, LIKE_PRINT_MASK, Dislike_amount-1, Dislike_line_size);
+    fprintf(fl_Dislike, LIKE_PRINT_MASK, (Dislike_amount-1), Dislike_line_size);
+
+    fclose(fl_Dislike);
 
     return NULL;
 }
@@ -100,7 +110,7 @@ void *append_like(unsigned int user_id, unsigned int video_id)
     fprintf(fl_Like, LIKE_PRINT_MASK, user_id, video_id);
 
     fseek(fl_Like, 0, SEEK_SET);
-    fprintf(fl_Like, LIKE_PRINT_MASK, Like_amount+1, Like_line_size);
+    fprintf(fl_Like, LIKE_PRINT_MASK, (Like_amount+1), Like_line_size);
 
     fclose(fl_Like);
 
@@ -115,7 +125,7 @@ void *append_dislike(unsigned int user_id, unsigned int video_id)
     fprintf(fl_Dislike, LIKE_PRINT_MASK, user_id, video_id);
 
     fseek(fl_Dislike, 0, SEEK_SET);
-    fprintf(fl_Dislike, LIKE_PRINT_MASK, Dislike_amount+1, Dislike_line_size);
+    fprintf(fl_Dislike, LIKE_PRINT_MASK,( Dislike_amount+1), Dislike_line_size);
 
     fclose(fl_Dislike);
 
@@ -125,7 +135,7 @@ void *append_dislike(unsigned int user_id, unsigned int video_id)
 void *video_increase_like(unsigned int video_id)
 {
     db_file(Video, "r+")
-    fseek(fl_Video, 0, SEEK_END);
+    fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
 
     for(int i = 0; i < Video_amount; i++)
     {   
@@ -134,7 +144,8 @@ void *video_increase_like(unsigned int video_id)
 
         if(vid.id == video_id){
             fseek(fl_Video, HEARDER_SIZE + (i * Video_line_size), SEEK_SET);
-            fprintf(fl_Video, VIDEO_PRINT_MASK, vid.id, vid.name, vid.desc, vid.duration, vid.likes + 1, vid.dislikes);
+            fseek(fl_Video, 324, SEEK_CUR);
+            fprintf(fl_Video, "%010u", (vid.likes + 1));
             break;
         }
     }
@@ -147,7 +158,7 @@ void *video_increase_like(unsigned int video_id)
 void *video_decrease_like(unsigned int video_id)
 {
     db_file(Video, "r+")
-    fseek(fl_Video, 0, SEEK_END);
+    fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
 
     for(int i = 0; i < Video_amount; i++)
     {   
@@ -156,7 +167,8 @@ void *video_decrease_like(unsigned int video_id)
 
         if(vid.id == video_id){
             fseek(fl_Video, HEARDER_SIZE + (i * Video_line_size), SEEK_SET);
-            fprintf(fl_Video, VIDEO_PRINT_MASK, vid.id, vid.name, vid.desc, vid.duration, vid.likes - 1, vid.dislikes);
+            fseek(fl_Video, 324, SEEK_CUR);
+            fprintf(fl_Video, "%010u", (vid.likes - 1));
             break;
         }
     }
@@ -169,7 +181,7 @@ void *video_decrease_like(unsigned int video_id)
 void *video_increase_dislike(unsigned int video_id)
 {
     db_file(Video, "r+")
-    fseek(fl_Video, 0, SEEK_END);
+    fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
 
     for(int i = 0; i < Video_amount; i++)
     {   
@@ -178,7 +190,8 @@ void *video_increase_dislike(unsigned int video_id)
 
         if(vid.id == video_id){
             fseek(fl_Video, HEARDER_SIZE + (i * Video_line_size), SEEK_SET);
-            fprintf(fl_Video, VIDEO_PRINT_MASK, vid.id, vid.name, vid.desc, vid.duration, vid.likes, vid.dislikes + 1);
+            fseek(fl_Video, 335, SEEK_CUR);
+            fprintf(fl_Video, "%010u", (vid.dislikes + 1));
             break;
         }
     }
@@ -191,7 +204,7 @@ void *video_increase_dislike(unsigned int video_id)
 void *video_decrease_dislike(unsigned int video_id)
 {
     db_file(Video, "r+")
-    fseek(fl_Video, 0, SEEK_END);
+    fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
 
     for(int i = 0; i < Video_amount; i++)
     {   
@@ -200,7 +213,8 @@ void *video_decrease_dislike(unsigned int video_id)
 
         if(vid.id == video_id){
             fseek(fl_Video, HEARDER_SIZE + (i * Video_line_size), SEEK_SET);
-            fprintf(fl_Video, VIDEO_PRINT_MASK, vid.id, vid.name, vid.desc, vid.duration, vid.likes, vid.dislikes - 1);
+            fseek(fl_Video, 335, SEEK_CUR);
+            fprintf(fl_Video, "%010u", (vid.dislikes - 1));
             break;
         }
     }
@@ -297,8 +311,8 @@ Response *handle_dislike(unsigned int user_id, unsigned int video_id)
         video_decrease_like(video_id);
     }
 
-    append_like(user_id, video_id);
-    video_increase_like(video_id);
+    append_dislike(user_id, video_id);
+    video_increase_dislike(video_id);
     return NULL;
 }
 

@@ -25,7 +25,7 @@ void clear_login(Page *this_p)
 
 void login_request(Page *this_p)
 {
-    pop_Str(this_p->link);
+    pop_title(this_p->link);
 
     Response *res = this_p->data.response;
     if (res == NULL)

@@ -24,7 +24,7 @@ void clear_open_vid(Page * this_p)
 }
 
 void request_video_by_id(Page *this_p)
-{
+{   
     Page_video_info *info = this_p->data.payload;
 
     Response *res = video_user_search(this_p->data.user.id, info->vid_selected);
@@ -36,6 +36,7 @@ void request_video_by_id(Page *this_p)
 
 void request_like(Page *this_p)
 {
+    pop_title(this_p->link);
     Page_video_info *info = this_p->data.payload;
 
     handle_like(this_p->data.user.id, info->vid_selected);
@@ -44,7 +45,8 @@ void request_like(Page *this_p)
 }
 
 void request_disike(Page *this_p)
-{
+{   
+    pop_title(this_p->link);
     Page_video_info *info = this_p->data.payload;
 
     handle_like(this_p->data.user.id, info->vid_selected);
@@ -76,8 +78,8 @@ void page_open_vid(Page *this_p)
 
     ops = add_opcao("Salvar em playlists", ops, sizeof(ops2));
 
-    add_nxt_pag(request_like, NULL, nxt)
-    add_nxt_pag(request_disike, NULL, nxt)
+    add_nxt_pag(request_like, clear_open_vid, nxt)
+    add_nxt_pag(request_disike, clear_open_vid, nxt)
 
     char *description = malloc(330);
     description[0] = '\0';
@@ -94,7 +96,7 @@ void page_open_vid(Page *this_p)
     }
 
     build_page(
-        "video?title=",
+        "video",
         description,
         question,
         ops,

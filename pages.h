@@ -50,9 +50,9 @@ typedef struct Page_video_info
 
 typedef struct Page
 {
-    Str_list *link;
-    char *title;
-    char *description;
+    prt_l_list *link;
+    char title[20];
+    char description[350];
     char **opcoes;
     char question[350];
     int selected;

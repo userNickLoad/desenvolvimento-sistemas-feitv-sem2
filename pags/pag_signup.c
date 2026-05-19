@@ -24,7 +24,7 @@ void clear_signup(Page *this_p)
 
 void signup_request(Page *this_p)
 {   
-    pop_Str(this_p->link);
+    pop_title(this_p->link);
 
     Response *res = this_p->data.response; 
     if (res == NULL){

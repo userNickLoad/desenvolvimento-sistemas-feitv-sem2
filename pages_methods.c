@@ -192,11 +192,11 @@ void render(Page *page)
      *      + Caso tenham opções, elas são expostas de forma agradavel;
      *
      */
-    node_char_ptr *crr_link = page->link->head;
+    node_ptr *crr_link = page->link->head;
 
     while (crr_link != NULL)
     {
-        printf("%s/", crr_link->value);
+        printf("%s/", (char *)crr_link->value);
         crr_link = crr_link->nxt;
     }
 
@@ -262,21 +262,31 @@ void build_page(char *title, char *description, char *question, char **opcoes, C
 
     if (lst == NULL && this_p->link != NULL)
     {
-        free_Str(this_p->link);
+        free_title(this_p->link);
         this_p->link = NULL;
     }
 
     if (this_p->link == NULL)
     {
-        this_p->link = Str_init_list();
+        this_p->link = prt_l_init_list();
         this_p->data.payload = NULL;
         this_p->data.response = NULL;
     }
 
-    add_Str(title, this_p->link);
+    if(title != NULL){
+        copy_str(this_p->title, title);
+    }else{
+        copy_str(this_p->title, "\0");
+    }
 
-    this_p->title = title;
-    this_p->description = description;
+    add_title(this_p->title, this_p->link);
+
+     if(description != NULL){
+        copy_str(this_p->description, description);
+    }else{
+        copy_str(this_p->description, "\0");
+    }
+
     if(question != NULL){
         copy_str(this_p->question, question);
     }else{
@@ -328,8 +338,8 @@ void live_page(Page *this_p)
         break;
     case GO_BACK:
     {
-        pop_Str(this_p->link);
-        pop_Str(this_p->link);
+        pop_title(this_p->link);
+        pop_title(this_p->link);
 
         ChangePage build_p = *this_p->lst;
 
