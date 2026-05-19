@@ -41,13 +41,20 @@ typedef struct ChangePage
     PageFn build;
 } ChangePage;
 
+typedef struct Page_video_info
+{
+    char search_title[50];
+    unsigned int vid_selected;
+    PageFn lst_page;
+} Page_video_info;
+
 typedef struct Page
 {
     Str_list *link;
     char *title;
     char *description;
     char **opcoes;
-    char *question;
+    char question[350];
     int selected;
     int i_janela;
     ChangePage *nxt;
@@ -91,7 +98,11 @@ void page_look_vids(Page *this_p);
 
 void page_look_playlists(Page *this_p);
 
+void page_open_vid(Page *this_p);
+
 void request_vids(Page *this_p);
+
+void request_video_by_id(Page *this_p);
 
 #define add_nxt_pag(pageFn_, free_before, list)  \
     do                                           \

@@ -135,7 +135,7 @@ typedef struct Page Page;
                                                                       \
         list[dinamic_size(list)] = value;                             \
                                                                       \
-        dinamic_size(list) += 1;                                      \
+        dinamic_size(list) = 1 + dinamic_size(list);                                      \
                                                                       \
         return list;                                                  \
     }

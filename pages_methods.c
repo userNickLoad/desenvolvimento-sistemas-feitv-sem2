@@ -1,7 +1,7 @@
 #include "header.h"
 #include "pages.h"
 #include "lists.h"
-
+#include "data/source/data.h"
 #include <conio.h>
 #include <stdlib.h>
 
@@ -9,7 +9,7 @@
 
 dinamic_list_impl(ChangePage, dina_chPage, sizeof(ChangePage))
 
-    void listening_arrows(Page *page)
+void listening_arrows(Page *page)
 {
     /*
      *  - Essa função monitora e adiministra a seleção da pagina e possui os seguintes cases:
@@ -56,16 +56,9 @@ dinamic_list_impl(ChangePage, dina_chPage, sizeof(ChangePage))
     switch (c)
     {
     case Arrow_down:
-        // se o final da janela for o limite
-        if (f_janela == limit)
-        {
-            // se não selecionamos o ultimo item da lista select++ se não select fica o mesmo
-            page->selected += (page->selected < limit - 1) ? 1 : 0;
-            break; // early return
-        }
 
         // se o final da janela não for o limite E está selecionado o ultimo item DA JANELA TEMOS QUE MOVER
-        if (page->selected == qtd_itens_janela - 1)
+        if (page->selected == f_janela - 1 && (f_janela != limit))
         {
             // janela desce junto com tudo
             page->i_janela++;
@@ -74,21 +67,15 @@ dinamic_list_impl(ChangePage, dina_chPage, sizeof(ChangePage))
         }
 
         // se o final da janela não é o limite E o item selecionado não é o ultimo DESCE SEM MEDO DE SER FELIZ
-        page->selected++;
+        page->selected += (page->selected < f_janela - 1) ? 1 : 0;
 
         break;
 
     case Arrow_up:
         // se o inicio da janela for o primeiro item de todos
-        if (page->i_janela == 0)
-        {
-            // se não está selecionado o primeiro item da lista select-- se está select fica o mesmo
-            page->selected -= (page->selected > 0) ? 1 : 0;
-            break; // early return
-        }
 
         // se o inicio da janela não for o primeiro item de todos E está selecionado o primeiro item DA JANELA TEMOS QUE MOVER
-        if (page->selected == 0)
+        if (page->selected == page->i_janela && (page->selected != 0))
         {
             // janela desce junto com tudo
             page->i_janela--;
@@ -96,8 +83,8 @@ dinamic_list_impl(ChangePage, dina_chPage, sizeof(ChangePage))
             break; // early return
         }
 
-        // se o final da janela não é o limite E o item selecionado não é o ultimo DESCE SEM MEDO DE SER FELIZ
-        page->selected--;
+        // se o final da janela não é o limite E o item selecionado não é o ultimo SOBE SEM MEDO DE SER FELIZ
+        page->selected -= (page->selected > page->i_janela) ? 1 : 0;
 
         break;
 
@@ -268,14 +255,6 @@ ChangePage selectFn_default(Page *this_p, int lst_selected)
 void build_page(char *title, char *description, char *question, char **opcoes, ChangePage *nxt, ChangePage *lst, void *selectFn,
                 void *render_options, void *action, Page *this_p)
 {
-
-    // if(clearFn == NULL){
-    //     this_p->clearFn = clearFn_defualt;
-    // }
-    // else{
-    //     this_p->clearFn = clearFn;
-    // }
-
     if (selectFn == NULL)
         this_p->selectFn = selectFn_default;
     else
@@ -298,7 +277,12 @@ void build_page(char *title, char *description, char *question, char **opcoes, C
 
     this_p->title = title;
     this_p->description = description;
-    this_p->question = question;
+    if(question != NULL){
+        copy_str(this_p->question, question);
+    }else{
+        copy_str(this_p->question, "\0");
+    }
+    
     this_p->opcoes = opcoes;
 
     if (render_options == NULL)

@@ -9,6 +9,9 @@
 #define VIDEO_SCAN_MASK "%10u;%50[^;];%250[^;];%10u;%10u;%10u\n"
 #define VIDEO_PRINT_MASK "%010u;%-50s;%-250s;%010u;%010u;%010u\n"
 
+#define LIKE_PRINT_MASK "%010u;%010u;\n"
+#define LIKE_SCAN_MASK "%10u;%10u;\n"
+
 #define HEADER_MASK "%010u;%010u\n"
 #define HEARDER_SIZE 23
 
@@ -25,6 +28,12 @@ Response signup(char *name, char *password);
 Response login(char *name, char *password);
 
 Response search_for_videos(char *title);
+
+Response *video_user_search(unsigned int user_id, unsigned int video_id);
+
+Response *handle_like(unsigned int user_id, unsigned int video_id);
+
+Response *handle_dislike(unsigned int user_id, unsigned int video_id);
 
 void copy_struct(void *to, void *from, int size);
 

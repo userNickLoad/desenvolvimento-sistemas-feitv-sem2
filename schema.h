@@ -17,6 +17,14 @@ typedef struct Video
     unsigned int dislikes;
 } Video;
 
+typedef struct Video_user
+{
+    Video video;
+    int like;
+    int dislike;
+} Video_user;
+
+
 typedef struct Dislike
 {
     unsigned int user_id;
