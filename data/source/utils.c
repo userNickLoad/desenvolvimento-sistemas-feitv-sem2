@@ -1,5 +1,6 @@
 #include "data.h"
 #include <windows.h>
+#include <stdarg.h>
 
 int compare_str(char *str1, char *str2)
 {
@@ -60,4 +61,92 @@ int is_alfab(char *str1, char *str2, int size)
 		}
 	}
 	return 2;
+}
+
+
+void erase_line(char *arq_title, int (*verify)(char *, void *), void *data)
+{
+    FILE *fl;
+    char fl_path[100];
+    sprintf(fl_path, "data/files/%s.txt", arq_title);
+
+    fl = fopen(fl_path, "rb+");
+
+    if (fl == NULL)
+    {
+        fprintf((&_iob[2]), "NAO FOI POSSIVEL ABRIR ");
+        return;
+    }
+
+    int unsigned amount, line_size;
+    fscanf(fl, "%010u;%010u", &amount, &line_size);
+
+    char *last = malloc(sizeof(char)*line_size);
+    char *replace = malloc(sizeof(char)*line_size);
+
+    fseek(fl, -(line_size), SEEK_END);
+    fread(last, sizeof(char), line_size, fl);
+    
+    fseek(fl, HEARDER_SIZE, SEEK_SET);
+
+    for (int i = 0; i < amount; i++)
+    {
+        fread(replace, sizeof(char), line_size, fl);
+
+        if (verify(replace, data))
+        {
+            fseek(fl, (-(line_size)), SEEK_CUR);
+            fwrite(last, sizeof(char), line_size, fl);
+            break;
+        }
+    }
+
+    free(last);
+    free(replace);
+
+    fseek(fl, 0, SEEK_SET);
+    fprintf(fl, "%010u;%010u\r\n", (amount - 1), line_size);
+
+    fflush(fl);
+
+    resize_fl(fl, (HEARDER_SIZE + (amount - 1)* line_size))
+
+    fclose(fl);
+
+    return;
+}
+
+void append_line(char * arq_title, char * fmt, ...)
+{
+    FILE *fl;
+    char fl_path[100];
+    sprintf(fl_path, "data/files/%s.txt", arq_title);
+
+    fl = fopen(fl_path, "rb+");
+
+    if (fl == NULL)
+    {
+        fprintf(stderr, "NAO FOI POSSIVEL ABRIR ");
+        return;
+    }
+
+    int unsigned amount, line_size;
+    fscanf(fl, "%010u;%010u", &amount, &line_size);
+	fseek(fl, 0, SEEK_END);
+
+	va_list args;
+
+	va_start(args, fmt);
+
+	vfprintf(fl, fmt, args);
+
+	va_end(args);
+
+	fflush(fl);
+	fseek(fl, 0, SEEK_SET);
+	fprintf(fl, "%010u;%010u", amount + 1, line_size);
+
+	fclose(fl);
+
+    return;
 }

@@ -1,5 +1,15 @@
 #ifndef Response
 
+#ifdef _WIN32
+    #include <io.h>
+    #define resize_fl(fl, new_size)\
+        _chsize(_fileno(fl), new_size);
+#else
+    #include <unistd.h>
+    #define resize_fl(fl, new_size)\
+        ftruncate(fileno(fl), novo_tamanho);
+#endif
+
 #include "../../schema.h"
 #include "../../header.h"
 
@@ -9,8 +19,8 @@
 #define VIDEO_SCAN_MASK "%10u;%50[^;];%250[^;];%10u;%10u;%10u\n"
 #define VIDEO_PRINT_MASK "%010u;%-50s;%-250s;%010u;%010u;%010u\n"
 
-#define LIKE_PRINT_MASK "%010u;%010u\n"
-#define LIKE_SCAN_MASK "%10u;%10u\n"
+#define LIKE_PRINT_MASK "%010u;%010u\r\n"
+#define LIKE_SCAN_MASK "%10u;%10u\r\n"
 
 #define HEADER_MASK "%010u;%010u\n"
 #define HEARDER_SIZE 23
@@ -36,6 +46,10 @@ Response *handle_like(unsigned int user_id, unsigned int video_id);
 Response *handle_dislike(unsigned int user_id, unsigned int video_id);
 
 void copy_struct(void *to, void *from, int size);
+
+void erase_line(char *arq_title, int (*verify)(char *, void *), void *data);
+
+void append_line(char * arq_title, char * fmt, ...);
 
 #define free_response(to_free, type)      \
     do                              \
@@ -72,6 +86,8 @@ int is_alfab(char *str1, char *str2, int size);
     fscanf(fl_##file, "%010u;%010u", &file##_amount, &file##_line_size); \
                                                                          \
     fseek(fl_##file, 22, SEEK_SET);
+
+
 
 int compare_str(char *str1, char *str2);
 

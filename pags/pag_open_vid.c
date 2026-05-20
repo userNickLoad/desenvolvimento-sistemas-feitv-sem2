@@ -49,7 +49,7 @@ void request_disike(Page *this_p)
     pop_title(this_p->link);
     Page_video_info *info = this_p->data.payload;
 
-    handle_like(this_p->data.user.id, info->vid_selected);
+    handle_dislike(this_p->data.user.id, info->vid_selected);
 
     request_video_by_id(this_p);
 }
