@@ -1,7 +1,7 @@
 CFLAGS = -g -O0 -Wall
 
-all: main.o pag_inicio.o pages_methods.o lists.o pag_login.o pag_signup.o data_utils.o user.o pag_home.o pag_look_vids.o pag_look_playlists.o video.o pag_open_vid.o
-	gcc $(CFLAGS) obj/main.o obj/lists.o obj/pag_inicio.o obj/pages_methods.o obj/pag_login.o obj/pag_signup.o obj/user.o obj/data_utils.o obj/pag_home.o obj/pag_look_vids.o obj/pag_look_playlists.o obj/video.o obj/pag_open_vid.o -o main
+all: main.o pag_inicio.o pages_methods.o lists.o pag_login.o pag_signup.o data_utils.o user.o pag_home.o pag_look_vids.o pag_playlists.o video.o pag_open_vid.o
+	gcc $(CFLAGS) obj/main.o obj/lists.o obj/pag_inicio.o obj/pages_methods.o obj/pag_login.o obj/pag_signup.o obj/user.o obj/data_utils.o obj/pag_home.o obj/pag_look_vids.o obj/pag_playlists.o obj/video.o obj/pag_open_vid.o -o main
 
 main.o: main.c
 	gcc $(CFLAGS) -c main.c -o obj/main.o
@@ -21,8 +21,8 @@ pag_home.o: pags/pag_home.c
 pag_look_vids.o: pags/pag_look_vids.c
 	gcc $(CFLAGS) -c pags/pag_look_vids.c -o obj/pag_look_vids.o
 
-pag_look_playlists.o: pags/pag_look_playlists.c
-	gcc $(CFLAGS) -c pags/pag_look_playlists.c -o obj/pag_look_playlists.o
+pag_playlists.o: pags/pag_playlists.c
+	gcc $(CFLAGS) -c pags/pag_playlists.c -o obj/pag_playlists.o
 
 pag_open_vid.o: pags/pag_open_vid.c
 	gcc $(CFLAGS) -c pags/pag_open_vid.c -o obj/pag_open_vid.o
@@ -54,5 +54,5 @@ clean:
 	del obj\user.o
 	del obj\pag_home.o
 	del obj\pag_look_vids.o
-	del obj\pag_look_playlists.o
+	del obj\pag_playlists.o
 

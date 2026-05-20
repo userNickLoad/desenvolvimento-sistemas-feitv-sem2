@@ -1,13 +1,13 @@
 #ifndef Response
 
 #ifdef _WIN32
-    #include <io.h>
-    #define resize_fl(fl, new_size)\
-        _chsize(_fileno(fl), new_size);
+#include <io.h>
+#define resize_fl(fl, new_size) \
+    _chsize(_fileno(fl), new_size);
 #else
-    #include <unistd.h>
-    #define resize_fl(fl, new_size)\
-        ftruncate(fileno(fl), novo_tamanho);
+#include <unistd.h>
+#define resize_fl(fl, new_size) \
+    ftruncate(fileno(fl), novo_tamanho);
 #endif
 
 #include "../../schema.h"
@@ -22,9 +22,14 @@
 #define LIKE_PRINT_MASK "%010u;%010u\r\n"
 #define LIKE_SCAN_MASK "%10u;%10u\r\n"
 
+#define PLAYLIST_SCAN_MASK "%10u;%10u;%20[^;];%250[^\r\n]\r\n"
+#define PLAYLIST_PRINT_MASK "%010u;%010u;%-20s;%-250s\r\n"
+
+#define PLAYLIST_VID_SCAN_MASK "%10u;%10u;%10u\r\n"
+#define PLAYLIST_VIDPRINT_MASK "%010u;%010u;%010u\r\n"
+
 #define HEADER_MASK "%010u;%010u\n"
 #define HEARDER_SIZE 23
-
 
 typedef struct Response
 {
@@ -47,21 +52,34 @@ Response *handle_dislike(unsigned int user_id, unsigned int video_id);
 
 void copy_struct(void *to, void *from, int size);
 
-void erase_line(char *arq_title, int (*verify)(char *, void *), void *data);
+void erase_line(char *arq_title, int (*verify)(char *, void *), void *data_filter);
 
-void append_line(char * arq_title, char * fmt, ...);
+void append_line(char *arq_title, int auto_incremente_id, char *fmt, ...);
 
-#define free_response(to_free, type)      \
-    do                              \
-    {                               \
-        Response *res = to_free;    \
-        if (res->data != NULL)      \
-        {                           \
-            type *user = res->data; \
-            free(user);             \
-        }                           \
-        free(res);                  \
-        to_free = NULL;             \
+void **read_fl(char *arq_title, void (*save)(char *, void *, void **), void *data_filter);
+
+int compare_titles(char *title1, char *title2, int size);
+
+#define free_response(to_free, type) \
+    do                               \
+    {                                \
+        Response *res = to_free;     \
+        if (res->data != NULL)       \
+        {                            \
+            type *user = res->data;  \
+            free(user);              \
+        }                            \
+        free(res);                   \
+        to_free = NULL;              \
+    } while (0);
+
+#define free_prt_list(to_free, size) \
+    do                                     \
+    {                                      \
+        for (int i = 0; i < size; i++)     \
+        {                                  \
+            free(to_free[i]);      \
+        }                                  \
     } while (0);
 
 void copy_str(char *to, char *from);
@@ -78,16 +96,14 @@ int is_alfab(char *str1, char *str2, int size);
                                                                          \
     if (fl_##file == NULL)                                               \
     {                                                                    \
-        fprintf(stderr, "NAO FOI POSSIVEL ABRIR ");              \
+        fprintf(stderr, "NAO FOI POSSIVEL ABRIR ");                      \
         return NULL;                                                     \
     }                                                                    \
     int unsigned file##_amount, file##_line_size;                        \
-    fseek(fl_##file, 0, SEEK_SET);                                                                     \
+    fseek(fl_##file, 0, SEEK_SET);                                       \
     fscanf(fl_##file, "%010u;%010u", &file##_amount, &file##_line_size); \
                                                                          \
     fseek(fl_##file, 22, SEEK_SET);
-
-
 
 int compare_str(char *str1, char *str2);
 

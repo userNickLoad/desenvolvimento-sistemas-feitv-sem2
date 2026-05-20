@@ -49,5 +49,5 @@ typedef struct Playlist_Video
 {
     unsigned int user_id;
     unsigned int playlist_id;
-    short unsigned int place;
+    unsigned int place;
 } Playlist_Video;

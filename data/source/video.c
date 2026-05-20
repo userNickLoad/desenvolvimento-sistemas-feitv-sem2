@@ -29,20 +29,6 @@ Video *apend_video(Video *vid)
     return vid;
 }
 
-int compare_titles(char *title1, char *title2, int size)
-{
-    if (title1[0] == '\0')
-        return 1;
-    for (int i = 0; i < size; i++)
-    {
-        if (title1[i] != title2[i])
-            return 0;
-        if (title1[i + 1] == '\0')
-            return 1;
-    }
-    return 0;
-}
-
 void *video_increase_like(unsigned int video_id)
 {
     db_file(Video, "r+")
@@ -210,7 +196,7 @@ Response *handle_like(unsigned int user_id, unsigned int video_id)
         video_decrease_dislike(video_id);
     }
 
-    append_line("Like", LIKE_PRINT_MASK, user_id, video_id);
+    append_line("Like", 0, LIKE_PRINT_MASK, user_id, video_id);
     video_increase_like(video_id);
 
     free(liked);
@@ -239,7 +225,7 @@ Response *handle_dislike(unsigned int user_id, unsigned int video_id)
         video_decrease_like(video_id);
     }
 
-    append_line("Dislike", LIKE_PRINT_MASK, user_id, video_id);
+    append_line("Dislike", 0, LIKE_PRINT_MASK, user_id, video_id);
     video_increase_dislike(video_id);
 
     free(liked);
