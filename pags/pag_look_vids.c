@@ -41,18 +41,19 @@ void request_vids(Page *this_p)
     Response *res = this_p->data.response;
     if (res != NULL){
         Video **vids = res->data;
-        for(int i = 0; i < dinamic_size(vids); i++)
+        if(vids != NULL)
         {
-            free(vids[i]);
+            for(int i = 0; i < dinamic_size(vids); i++)
+            {
+                free(vids[i]);
+            }
+            dinamic_free(void*, vids);
+            res->data = NULL;
         }
-        dinamic_free(void*, vids);
-        res->data = NULL;
+        
         free(res);
         this_p->data.response = NULL;
     }
-    
-    res = malloc(sizeof(Response));
-    this_p->data.response = res;
 
     if (info == NULL)
     {   
@@ -63,9 +64,10 @@ void request_vids(Page *this_p)
     }
     
     char *title = info->search_title;
-    Response res_search = search_for_videos(title);
+    res = search_for_videos(title);
+
     
-    copy_struct(res, &res_search, sizeof(Response));
+        this_p->data.response = res;
 
     page_look_vids(this_p);
 }
@@ -75,7 +77,7 @@ ChangePage selectFn_lv(Page *this_p, int lst_selected)
     Page_video_info *data = this_p->data.payload;
     Response *res = this_p->data.response;
     Video **vids = res->data;
-    data->vid_selected = vids[lst_selected][0].id;
+    data->vid_selected = (vids != NULL)? vids[lst_selected][0].id: 0;
     return (lst_selected == 0)? this_p->nxt[0]: this_p->nxt[1];
 }
 
@@ -84,7 +86,8 @@ void page_look_vids(Page *this_p) {
     Response *res = (Response *)this_p->data.response;
     Video **vids = (Video **)res->data;
     Page_video_info *info = (Page_video_info *)this_p->data.payload;
-    int vids_amout = dinamic_size(vids);
+    int vids_amout = 0;
+    if(vids != NULL) vids_amout = dinamic_size(vids);
 
     char **ops = (char **)dina_prt_init(1 + vids_amout);
     ChangePage *nxt = dina_chPage_init(2);
@@ -98,7 +101,8 @@ void page_look_vids(Page *this_p) {
     ops = add_opcao(ops1, ops, sizeof(ops1));
 
     add_nxt_pag(lv_search_bar, NULL, nxt)
-    add_nxt_pag(request_video_by_id, clear_resposnse_lv, nxt)
+
+    if(vids_amout > 0) add_nxt_pag(request_video_by_id, clear_resposnse_lv, nxt)
 
     for (int i = 0; i < vids_amout; i++)
     {
@@ -107,10 +111,10 @@ void page_look_vids(Page *this_p) {
 
     char *question = NULL;
 
-    if (res->code != 200)
-    {
-        question = res->msg;
-    }
+    // if (res->code != 200)
+    // {
+    //     question = res->msg;
+    // }
 
     build_page(
         "videos",

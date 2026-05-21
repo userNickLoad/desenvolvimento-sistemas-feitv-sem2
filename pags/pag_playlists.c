@@ -5,7 +5,7 @@
 #include "../data/source/data.h"
 #include "utils.h"
 
-generate_gettxt_page(lv_search_bar, "Busque por filmes", Page_video_info, search_title, validateCh_login, request_vids)
+generate_gettxt_page(pl_search_bar, "Busque por suas playlists", Page_video_info, search_title, validateCh_login, request_pls)
 
 void clear_resposnse_pl(Page *this_p)
 {
@@ -22,7 +22,7 @@ void clear_resposnse_pl(Page *this_p)
         this_p->data.response = NULL;
     }
 }
-void clear_lv(Page *this_p)
+void clear_pl(Page *this_p)
 {   
     Page_video_info *page_i = (Page_video_info *) this_p->data.payload;
     if (page_i != NULL)
@@ -31,10 +31,10 @@ void clear_lv(Page *this_p)
         this_p->data.payload = NULL;
     }
 
-   clear_resposnse_lv(this_p);
+   clear_resposnse_pl(this_p);
 }
 
-void request_vids(Page *this_p)
+void request_pls(Page *this_p)
 {   
     Page_video_info *info = this_p->data.payload;
     
@@ -63,7 +63,7 @@ void request_vids(Page *this_p)
     }
     
     char *title = info->search_title;
-    Response res_search = search_for_videos(title);
+    Response res_search = search_for_playlists(title);
     
     copy_struct(res, &res_search, sizeof(Response));
 
@@ -90,15 +90,15 @@ void page_playlists(Page *this_p) {
     ChangePage *nxt = dina_chPage_init(2);
     ChangePage *lst = malloc(sizeof(ChangePage));
 
-    lst->free_all = clear_lv;
+    lst->free_all = clear_pl;
     lst->build = page_home;
 
     char ops1[85];
     sprintf(ops1, "Busque por playlists: %s", info->search_title);
     ops = add_opcao(ops1, ops, sizeof(ops1));
 
-    add_nxt_pag(lv_search_bar, NULL, nxt)
-    add_nxt_pag(request_video_by_id, clear_resposnse_lv, nxt)
+    add_nxt_pag(pl_search_bar, NULL, nxt)
+    add_nxt_pag(request_video_by_id, clear_resposnse_pl, nxt)
 
     for (int i = 0; i < vids_amout; i++)
     {
@@ -119,7 +119,7 @@ void page_playlists(Page *this_p) {
         ops,
         nxt,
         lst,
-        selectFn_lv,
+        selectFn_pl,
         NULL,
         NULL,
         this_p

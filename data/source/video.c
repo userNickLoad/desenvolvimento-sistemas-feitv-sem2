@@ -1,170 +1,75 @@
 #include "data.h"
 #include "../../lists.h"
 
-Video *apend_video(Video *vid)
+int video_increase_like(char *line, void *data_filter)
 {
-    db_file(Video, "r+")
+    Video original;
+    Video *new = (Video *)data_filter;
 
-        vid->id = Video_amount + 1;
-    vid->likes = 0;
-    vid->dislikes = 0;
+    VIDEO_SCAN(line, original)
 
-    fseek(fl_Video, 0, SEEK_END);
+    if(original.id != new->id) return 0;
 
-    fprintf(fl_Video, "%010u;", vid->id);
-    char name_b[51];
-    ajust_info(name_b, vid->name, sizeof(name_b), ';');
-    fwrite(name_b, sizeof(char), 51, fl_Video);
+    sprintf(line, VIDEO_PRINT_MASK, original.id, original.name, original.desc, original.duration,  original.likes + 1,  original.dislikes);
 
-    char dec_b[251];
-    ajust_info(dec_b, vid->desc, sizeof(dec_b), ';');
-    fwrite(dec_b, sizeof(char), 251, fl_Video);
-
-    fprintf(fl_Video, "%010u;%010u;%010u\n", vid->duration, 0, 0);
-
-    fseek(fl_Video, 0, SEEK_SET);
-    fprintf(fl_Video, HEADER_MASK, (Video_amount + 30), Video_line_size);
-
-    fclose(fl_Video);
-    return vid;
+    return 1;
 }
 
-void *video_increase_like(unsigned int video_id)
+int video_decrease_like(char *line, void *data_filter)
 {
-    db_file(Video, "r+")
-        fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
+    Video original;
+    Video *new = (Video *)data_filter;
 
-    for (int i = 0; i < Video_amount; i++)
-    {
-        Video vid;
-        fscanf(fl_Video, VIDEO_SCAN_MASK, &vid.id, vid.name, vid.desc, &vid.duration, &vid.likes, &vid.dislikes);
+    VIDEO_SCAN(line, original)
 
-        if (vid.id == video_id)
-        {
-            fseek(fl_Video, HEARDER_SIZE + (i * Video_line_size), SEEK_SET);
-            fseek(fl_Video, 324, SEEK_CUR);
-            fprintf(fl_Video, "%010u", (vid.likes + 1));
-            break;
-        }
-    }
+    if(original.id != new->id) return 0;
 
-    fclose(fl_Video);
+    sprintf(line, VIDEO_PRINT_MASK, original.id, original.name, original.desc, original.duration,  original.likes - 1,  original.dislikes);
 
-    return NULL;
+    return 1;
 }
 
-void *video_decrease_like(unsigned int video_id)
+int video_increase_dislike(char *line, void *data_filter)
 {
-    db_file(Video, "r+")
-        fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
+    Video original;
+    Video *new = (Video *)data_filter;
 
-    for (int i = 0; i < Video_amount; i++)
-    {
-        Video vid;
-        fscanf(fl_Video, VIDEO_SCAN_MASK, &vid.id, vid.name, vid.desc, &vid.duration, &vid.likes, &vid.dislikes);
+    VIDEO_SCAN(line, original)
 
-        if (vid.id == video_id)
-        {
-            fseek(fl_Video, HEARDER_SIZE + (i * Video_line_size), SEEK_SET);
-            fseek(fl_Video, 324, SEEK_CUR);
-            fprintf(fl_Video, "%010u", (vid.likes - 1));
-            break;
-        }
-    }
+    if(original.id != new->id) return 0;
 
-    fclose(fl_Video);
+    sprintf(line, VIDEO_PRINT_MASK, original.id, original.name, original.desc, original.duration,  original.likes,  original.dislikes + 1);
 
-    return NULL;
+    return 1;
 }
 
-void *video_increase_dislike(unsigned int video_id)
+int video_decrease_dislike(char *line, void *data_filter)
 {
-    db_file(Video, "r+")
-        fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
+    Video original;
+    Video *new = (Video *)data_filter;
 
-    for (int i = 0; i < Video_amount; i++)
-    {
-        Video vid;
-        fscanf(fl_Video, VIDEO_SCAN_MASK, &vid.id, vid.name, vid.desc, &vid.duration, &vid.likes, &vid.dislikes);
+    VIDEO_SCAN(line, original)
 
-        if (vid.id == video_id)
-        {
-            fseek(fl_Video, HEARDER_SIZE + (i * Video_line_size), SEEK_SET);
-            fseek(fl_Video, 335, SEEK_CUR);
-            fprintf(fl_Video, "%010u", (vid.dislikes + 1));
-            break;
-        }
-    }
+    if(original.id != new->id) return 0;
 
-    fclose(fl_Video);
+    sprintf(line, VIDEO_PRINT_MASK, original.id, original.name, original.desc, original.duration,  original.likes,  original.dislikes - 1);
 
-    return NULL;
+    return 1;
 }
 
-void *video_decrease_dislike(unsigned int video_id)
+void user_liked(char *line, void *data_filter, void **list_save)
 {
-    db_file(Video, "r+")
-        fseek(fl_Video, HEARDER_SIZE, SEEK_SET);
+    Like temp;
+    Like *like_filter = (Like *)data_filter;
 
-    for (int i = 0; i < Video_amount; i++)
-    {
-        Video vid;
-        fscanf(fl_Video, VIDEO_SCAN_MASK, &vid.id, vid.name, vid.desc, &vid.duration, &vid.likes, &vid.dislikes);
+    LIKE_SCAN(line, temp)
 
-        if (vid.id == video_id)
-        {
-            fseek(fl_Video, HEARDER_SIZE + (i * Video_line_size), SEEK_SET);
-            fseek(fl_Video, 335, SEEK_CUR);
-            fprintf(fl_Video, "%010u", (vid.dislikes - 1));
-            break;
-        }
-    }
-
-    fclose(fl_Video);
-
-    return NULL;
-}
-
-Like *user_liked(unsigned int user_id, unsigned int video_id)
-{
-    db_file(Like, "r")
-        Like *liked = NULL;
-
-    for (int i = 0; i < Like_amount; i++)
-    {
-        Like like;
-        fscanf(fl_Like, LIKE_PRINT_MASK, &like.user_id, &like.video_id);
-
-        if (like.user_id == user_id && like.video_id == video_id)
-        {
-            liked = malloc(sizeof(Like));
-            copy_struct(liked, &like, sizeof(Like));
-            break;
-        }
-    }
-
-    return liked;
-}
-
-Dislike *user_disliked(unsigned int user_id, unsigned int video_id)
-{
-    db_file(Dislike, "r")
-        Dislike *disliked = NULL;
-
-    for (int i = 0; i < Dislike_amount; i++)
-    {
-        Dislike dislike;
-        fscanf(fl_Dislike, LIKE_PRINT_MASK, &dislike.user_id, &dislike.video_id);
-
-        if (dislike.user_id == user_id && dislike.video_id == video_id)
-        {
-            disliked = malloc(sizeof(Dislike));
-            copy_struct(disliked, &dislike, sizeof(Dislike));
-            break;
-        }
-    }
-
-    return disliked;
+    if (temp.user_id != like_filter->user_id || temp.video_id != like_filter->video_id) return;
+    
+    Like *save_like = malloc(sizeof(Like));
+    copy_struct(save_like, &temp, sizeof(Like));
+    dina_prt_add(save_like, list_save);
+    
 }
 
 int verify_like(char * line, void *data)
@@ -177,27 +82,50 @@ int verify_like(char * line, void *data)
 }
 
 Response *handle_like(unsigned int user_id, unsigned int video_id)
-{
-    Like *liked = user_liked(user_id, video_id);
-    Dislike *disliked = (liked == NULL) ? user_disliked(user_id, video_id) : NULL;
+{   
+    Like like_filter;
+    like_filter.user_id = user_id;
+    like_filter.video_id = video_id;
+
+    Video video_filter;
+    video_filter.id = video_id;
+
+    Like **liked_query = (Like **) read_fl("Like", user_liked, 1, &like_filter);
+    Like *liked = NULL;
+    if(liked_query != NULL)
+    {
+        liked = (dinamic_size(liked_query) > 0)? liked_query[0]: NULL;
+        dinamic_free(void *, liked_query)
+    }
+
+    Dislike ** disliked_query = (liked == NULL) ? (Dislike **) read_fl("Dislike", user_liked, 1, &like_filter) : NULL;
+    Dislike *disliked = NULL;
+    if(disliked_query != NULL)
+    {
+        disliked = (dinamic_size(disliked_query) > 0)? disliked_query[0]: NULL;
+        dinamic_free(void *, disliked_query)
+    }
+
 
     // Response *res = malloc(sizeof(Response));
 
     if (liked != NULL)
-    {
-        erase_line("Like", verify_like, liked);
-        video_decrease_like(video_id);
+    {   
+        erase_line("Like", verify_like, 1, liked);
+        update_fl("Video", video_decrease_like, 1, &video_filter);
+        free(liked);
         return NULL;
     }
 
     if (disliked != NULL)
-    {
-        erase_line("Dislike", verify_like, disliked);
-        video_decrease_dislike(video_id);
+    {   
+        erase_line("Dislike", verify_like, 1, disliked);
+        update_fl("Video", video_decrease_dislike, 1, &video_filter);
+        free(disliked);
     }
 
     append_line("Like", 0, LIKE_PRINT_MASK, user_id, video_id);
-    video_increase_like(video_id);
+    update_fl("Video", video_increase_like, 1, &video_filter);
 
     free(liked);
     free(disliked);
@@ -207,26 +135,48 @@ Response *handle_like(unsigned int user_id, unsigned int video_id)
 
 Response *handle_dislike(unsigned int user_id, unsigned int video_id)
 {   
-    Dislike *disliked =  user_disliked(user_id, video_id);
-    Like *liked = (disliked == NULL) ? user_liked(user_id, video_id): NULL;
+    Like like_filter;
+    like_filter.user_id = user_id;
+    like_filter.video_id = video_id;
 
-    // Response *res = malloc(sizeof(Response));
+    Video video_filter;
+    video_filter.id = video_id;
+
+    Like **liked_query = (Like **) read_fl("Like", user_liked, 1, &like_filter);
+    Like *liked = NULL;
+    if(liked_query != NULL)
+    {
+        liked = (dinamic_size(liked_query) > 0)? liked_query[0]: NULL;
+        dinamic_free(void *, liked_query)
+    }
+
+    Dislike ** disliked_query = (liked == NULL) ? (Dislike **) read_fl("Dislike", user_liked, 1, &like_filter) : NULL;
+    Dislike *disliked = NULL;
+    if(disliked_query != NULL)
+    {
+        disliked = (dinamic_size(disliked_query) > 0)? disliked_query[0]: NULL;
+        dinamic_free(void *, disliked_query)
+    }
 
     if (disliked != NULL)
-    {
-        erase_line("Dislike", verify_like, disliked);
-        video_decrease_dislike(video_id);
+    {   
+        erase_line("Dislike", verify_like, 1, disliked);
+        update_fl("Video", video_decrease_dislike, 1, &video_filter);
+        free(disliked);
+        
         return NULL;
     }
 
     if (liked != NULL)
-    {
-        erase_line("Like", verify_like, liked);
-        video_decrease_like(video_id);
+    {   
+
+        erase_line("Like", verify_like, 1, liked);
+        update_fl("Video", video_decrease_like, 1, &video_filter);
+        free(liked);
     }
 
     append_line("Dislike", 0, LIKE_PRINT_MASK, user_id, video_id);
-    video_increase_dislike(video_id);
+    update_fl("Video", video_increase_dislike, 1, &video_filter);
 
     free(liked);
     free(disliked);
@@ -234,98 +184,116 @@ Response *handle_dislike(unsigned int user_id, unsigned int video_id)
     return NULL;
 }
 
-Video *vid_by_id(unsigned int video_id)
+void vid_by_id(char *line, void *data_filter, void **list_save)
 {
-    db_file(Video, "r")
+    Video temp;
+    Video *video_filter = data_filter;
 
-        Video *vid_selec = NULL;
+    sscanf(line, VIDEO_SCAN_MASK, &temp.id, temp.name, temp.desc, &temp.duration, &temp.likes, &temp.dislikes);
 
-    for (int i = 0; i < Video_amount; i++)
-    {
-        Video vid;
-        fscanf(fl_Video, VIDEO_SCAN_MASK, &vid.id, vid.name, vid.desc, &vid.duration, &vid.likes, &vid.dislikes);
+    if(temp.id != video_filter->id) return;
 
-        if (vid.id == video_id)
-        {
-            vid_selec = (Video *)malloc(sizeof(Video));
-            copy_struct(vid_selec, &vid, sizeof(Video));
-            break;
-        }
-    }
-    fclose(fl_Video);
+    Video *save = malloc(sizeof(Video));
+    copy_struct(save, &temp, sizeof(Video));
 
-    return vid_selec;
+    dina_prt_add(save, list_save);
 }
 
 Response *video_user_search(unsigned int user_id, unsigned int video_id)
 {
     Response *res = malloc(sizeof(Response));
+    res->msg[0] = '\0';
 
-    Video *vid = vid_by_id(video_id);
+    Video video_filter;
+    video_filter.id = video_id;
 
-    if (vid == NULL)
-    {
+    Like like_filter;
+    like_filter.user_id = user_id;
+    like_filter.video_id = video_id;
+
+    Video **vid = (Video **) read_fl("Video", vid_by_id, 1, &video_filter);
+
+    if (dinamic_size(vid) == 0)
+    {   
+        dinamic_free(void *, vid);
         res->code = 404;
         res->data = NULL;
         sprintf(res->msg, "Nao foi possivel localizar o video id: %d", video_id);
         return res;
     }
 
-    Like *liked = user_liked(user_id, video_id);
-    Dislike *dislike = (liked == NULL) ? user_disliked(user_id, video_id) : NULL;
-
-    res->msg[0] = '\0';
+    Like **liked = (Like **) read_fl("Like", user_liked, 1, &like_filter);
+    Dislike ** disliked = (dinamic_size(liked) == 0) ? (Dislike **) read_fl("Dislike", user_liked, 1, &like_filter) : NULL;
 
     Video_user *video_user = (Video_user *)malloc(sizeof(Video_user));
-    copy_struct(&video_user->video, vid, sizeof(Video));
-    free(vid);
+    video_user->video.id = vid[0]->id;
+    video_user->video.likes = vid[0]->likes;
+    video_user->video.duration = vid[0]->duration;
+    video_user->video.dislikes = vid[0]->dislikes;
+    copy_str(video_user->video.name, vid[0]->name);
+    copy_str(video_user->video.desc, vid[0]->desc);
 
-    video_user->like = liked != NULL;
-    video_user->dislike = dislike != NULL;
+    free(vid[0]);
+    dinamic_free(void *, vid);
 
+    video_user->like = 0;
+    video_user->dislike = 0;
+
+    if(liked != NULL)
+    {
+        video_user->like = dinamic_size(liked) > 0;
+        if (dinamic_size(liked) > 0) free(liked[0]);
+    }
+
+    if(disliked != NULL)
+    {
+        video_user->dislike = dinamic_size(disliked) > 0;
+        if (dinamic_size(disliked) > 0) free(disliked[0]);
+    }
+    
+    dinamic_free(void *, liked);
+
+    dinamic_free(void *, disliked);
+
+    free(vid[0]);
+   
     res->code = 200;
     res->data = video_user;
     return res;
 }
 
-Video *search_vids(char *title)
-{
-    db_file(Video, "r")
+void search_vids(char *line, void *data_filter, void **list_save)
+{   
+    Video temp, *video_filter = data_filter;
+    
+    VIDEO_SCAN(line, temp)
 
-        Video *vids = (Video *)dina_prt_init(Video_amount);
+    if (!compare_titles(video_filter->name, temp.name, sizeof(temp.name))) return;
 
-    for (int i = 0; i < Video_amount; i++)
-    {
-        Video vid;
-        fscanf(fl_Video, VIDEO_SCAN_MASK, &vid.id, vid.name, vid.desc, &vid.duration, &vid.likes, &vid.dislikes);
-
-        if (compare_titles(title, vid.name, sizeof(vid.name)))
-        {
-            Video *vid_selec = malloc(sizeof(Video));
-            copy_struct(vid_selec, &vid, sizeof(vid));
-            dina_prt_add((void *)vid_selec, (void *)vids);
-        }
-    }
-    fclose(fl_Video);
-
-    return vids;
+    Video *save = malloc(sizeof(Video));
+    copy_struct(save, &temp, sizeof(Video));
+    dina_prt_add(save, list_save);
 }
 
-Response search_for_videos(char *title)
+Response *search_for_videos(char *title)
 {
-    Response res;
+    Response *res = malloc(sizeof(Response));
 
-    Video *vids = search_vids(title);
+    Video video_filter;
+    copy_str(video_filter.name, title);
 
-    if (dinamic_size(vids) < 0)
+    Video **vids = (Video **) read_fl("Video", search_vids, 0, &video_filter);
+
+    if (dinamic_size(vids) == 0)
     {
-        res.code = 400;
-        res.data = NULL;
-        printf(res.msg, "Nenhum resultado: %s", title);
-        dinamic_free(void *, vids) return res;
+        res->code = 400;
+        res->data = NULL;
+        sprintf(res->msg, "Nenhum resultado: %s", title);
+        dinamic_free(void *, vids) 
+        return res;
     }
-    res.code = 200;
-    res.data = vids;
+    res->code = 200;
+    res->data = vids;
 
     return res;
 }

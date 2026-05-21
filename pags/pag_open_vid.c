@@ -68,12 +68,12 @@ void page_open_vid(Page *this_p)
     lst->free_all = clear_open_vid;
     lst->build = info->lst_page;
 
-    char ops1[20];
-    sprintf(ops1, "%u Gostei%s", vid->video.likes, (vid->like)? " @": "");
+    char ops1[40];
+    snprintf(ops1, 40, "%u Gostei%s", vid->video.likes, (vid->like)? " @": "");
     ops = add_opcao(ops1, ops, sizeof(ops1));
 
-    char ops2[20];
-    sprintf(ops2, "%u Nao gostei%s", vid->video.dislikes, (vid->dislike)? " @": "");
+    char ops2[40];
+    snprintf(ops2, 40, "%u Nao gostei%s", vid->video.dislikes, (vid->dislike)? " @": "");
     ops = add_opcao(ops2, ops, sizeof(ops2));
 
     ops = add_opcao("Salvar em playlists", ops, sizeof(ops2));
@@ -81,15 +81,16 @@ void page_open_vid(Page *this_p)
     add_nxt_pag(request_like, clear_open_vid, nxt)
     add_nxt_pag(request_disike, clear_open_vid, nxt)
 
-    char *description = malloc(330);
-    description[0] = '\0';
+    // char *description = malloc(330);
+    char description[330];
+    description[330] = '\0';
 
-    char *question = '\0';
+    char *question = NULL;
 
     if(res->code == 200)
     {
 
-        sprintf(description, "\n\n\tTitulo: %s;\n\nDescricao: %s;", vid->video.name, vid->video.desc);
+        snprintf(description, 330, "\n\n\tTitulo: %s;\n\nDescricao: %s;", vid->video.name, vid->video.desc);
     } else
     {
         question = res->msg;

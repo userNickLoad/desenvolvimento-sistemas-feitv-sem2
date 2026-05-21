@@ -122,16 +122,7 @@ typedef struct Page Page;
     type *name##_add(type value, type *list)                          \
     {                                                                 \
                                                                       \
-        if (dinamic_size(list) + 1 > dinamic_pre_size(list))          \
-        {                                                             \
-            type *new_list = name##_init(dinamic_pre_size(list) * 2); \
-            for (int i = 0; i < dinamic_size(list); i++)              \
-            {                                                         \
-                new_list[i] = list[i];                                \
-            }                                                         \
-            free(list);                                               \
-            list = new_list;                                          \
-        }                                                             \
+                                                       \
                                                                       \
         list[dinamic_size(list)] = value;                             \
                                                                       \
@@ -150,9 +141,6 @@ typedef struct Page Page;
 
 #define dinamic_free(type, list) \
         free((type *)(((int *)list) - 3));
-
-
-
 
 
 typedef char *char_ptr;

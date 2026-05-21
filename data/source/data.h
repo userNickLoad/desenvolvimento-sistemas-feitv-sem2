@@ -13,23 +13,46 @@
 #include "../../schema.h"
 #include "../../header.h"
 
-#define USER_SCAN_MASK "%10u;%50[^;];%20[^\n]\n"
-#define USER_PRINT_MASK "%010u;%-50s;%-20s\n"
+#define USER_SCAN_MASK "%10u;%10u;%50[^;];%20[^\r\n]\r\n"
+#define USER_PRINT_MASK "%010u;%010u;%-50s;%-20s\r\n"
+#define USER_SCAN(line, var)\
+    snscanf(line, 95, USER_SCAN_MASK, &var.id, &var.playlists, var.name, var.password);\
+    trim(var.name, 50);\
+    trim(var.password, 20);
 
-#define VIDEO_SCAN_MASK "%10u;%50[^;];%250[^;];%10u;%10u;%10u\n"
-#define VIDEO_PRINT_MASK "%010u;%-50s;%-250s;%010u;%010u;%010u\n"
+
+#define VIDEO_SCAN_MASK "%10u;%50[^;];%250[^;];%10u;%10u;%10u\r\n"
+#define VIDEO_PRINT_MASK "%010u;%-50s;%-250s;%010u;%010u;%010u\r\n"
+#define VIDEO_SCAN(line, var)\
+    snscanf(line, 374, VIDEO_SCAN_MASK, &var.id, var.name, var.desc, &var.duration,  &var.likes,  &var.dislikes);\
+    trim(var.name, 50);\
+    trim(var.desc, 250);
 
 #define LIKE_PRINT_MASK "%010u;%010u\r\n"
 #define LIKE_SCAN_MASK "%10u;%10u\r\n"
+#define LIKE_SCAN(line, var)\
+    snscanf(line, 24, LIKE_SCAN_MASK, &var.user_id, &var.video_id);
 
 #define PLAYLIST_SCAN_MASK "%10u;%10u;%20[^;];%250[^\r\n]\r\n"
 #define PLAYLIST_PRINT_MASK "%010u;%010u;%-20s;%-250s\r\n"
+#define PLAYLIST_SCAN(line, var)\
+    snscanf(line, 295, PLAYLIST_SCAN_MASK, &var.id, &var.user_id, var.name, var.description);\
+    trim(var.name, 20);\
+    trim(var.description, 250);
+#define PLAYLIST_PRINT(line, var)\
+    snprintf(line, 295, PLAYLIST_PRINT_MASK, var.id, var.user_id, var.name, var.description);
+
 
 #define PLAYLIST_VID_SCAN_MASK "%10u;%10u;%10u\r\n"
-#define PLAYLIST_VIDPRINT_MASK "%010u;%010u;%010u\r\n"
+#define PLAYLIST_VID_PRINT_MASK "%010u;%010u;%010u\r\n"
+#define PLAYLIST_VID_SCAN(line, var)\
+    snscanf(line, 34, PLAYLIST_VID_SCAN_MASK, &var.video_id, &var.playlist_id, &var.place);
+#define PLAYLIST_VID_PRINT(line, var)\
+    snprintf(line, 34, PLAYLIST_VID_PRINT_MASK, var.video_id, var.playlist_id, var.place);
 
-#define HEADER_MASK "%010u;%010u\n"
-#define HEARDER_SIZE 23
+
+#define HEADER_MASK "%010u;%010u;%010u\r\n"
+#define HEARDER_SIZE 34
 
 typedef struct Response
 {
@@ -38,13 +61,13 @@ typedef struct Response
     void *data;
 } Response;
 
-Response signup(char *name, char *password);
+Response *signup(char *name, char *password); // MEXER
 
-Response login(char *name, char *password);
+Response *login(char *name, char *password);// MEXER
 
-Response search_for_videos(char *title);
+Response *search_for_videos(char *title); // MEXER
 
-Response *video_user_search(unsigned int user_id, unsigned int video_id);
+Response *video_user_search(unsigned int user_id, unsigned int video_id); // MEXER
 
 Response *handle_like(unsigned int user_id, unsigned int video_id);
 
@@ -52,13 +75,17 @@ Response *handle_dislike(unsigned int user_id, unsigned int video_id);
 
 void copy_struct(void *to, void *from, int size);
 
-void erase_line(char *arq_title, int (*verify)(char *, void *), void *data_filter);
+void erase_line(char *arq_title, int (*verify)(char *, void *), unsigned amount_erase, void *data_filter);
 
 void append_line(char *arq_title, int auto_incremente_id, char *fmt, ...);
 
-void **read_fl(char *arq_title, void (*save)(char *, void *, void **), void *data_filter);
+void **read_fl(char *arq_title, void (*save)(char *, void *, void **), unsigned int amount_save, void *data_filter);
+
+void update_fl(char *arq_title, int (*alter)(char *, void *), unsigned int amount_alter, void *data_filter);
 
 int compare_titles(char *title1, char *title2, int size);
+
+void trim(char *str, int size);
 
 #define free_response(to_free, type) \
     do                               \
@@ -87,24 +114,5 @@ void copy_str(char *to, char *from);
 void ajust_info(char *stream, char *src, int size, char end_char);
 int is_alfab(char *str1, char *str2, int size);
 
-#define db_file(file, mode)                                              \
-                                                                         \
-    FILE *fl_##file;                                                     \
-    char fl_path_##file[100];                                            \
-    sprintf(fl_path_##file, "data/files/%s.txt", #file);                 \
-    fl_##file = fopen(fl_path_##file, mode);                             \
-                                                                         \
-    if (fl_##file == NULL)                                               \
-    {                                                                    \
-        fprintf(stderr, "NAO FOI POSSIVEL ABRIR ");                      \
-        return NULL;                                                     \
-    }                                                                    \
-    int unsigned file##_amount, file##_line_size;                        \
-    fseek(fl_##file, 0, SEEK_SET);                                       \
-    fscanf(fl_##file, "%010u;%010u", &file##_amount, &file##_line_size); \
-                                                                         \
-    fseek(fl_##file, 22, SEEK_SET);
-
-int compare_str(char *str1, char *str2);
 
 #endif

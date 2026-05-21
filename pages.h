@@ -48,6 +48,13 @@ typedef struct Page_video_info
     PageFn lst_page;
 } Page_video_info;
 
+typedef struct Page_playlist_info
+{
+    char search_title[50];
+    unsigned int vid_selected;
+    PageFn lst_page;
+} Page_playlist_info;
+
 typedef struct Page
 {
     prt_l_list *link;

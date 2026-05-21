@@ -45,19 +45,19 @@ void login_request(Page *this_p)
         return;
     }
 
-    Response res_login = login(user->name, user->password);
-    if (res_login.code != 200)
+    Response *res_login = login(user->name, user->password);
+    if (res_login->code != 200)
     {
-        copy_struct(res, &res_login, sizeof(Response));
+        copy_struct(res, res_login, sizeof(Response));
         page_login(this_p);
         return;
     }
 
     clear_login(this_p);
 
-    user = (User *) res_login.data;
-    this_p->data.user.id = user->id;
-    copy_str(this_p->data.user.name, user->name);
+    user = (User *) res_login->data;
+    copy_struct(&this_p->data.user, user, sizeof(User));
+
     free(user);
     page_home(this_p);
 }

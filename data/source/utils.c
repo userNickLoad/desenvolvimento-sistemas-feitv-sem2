@@ -78,7 +78,18 @@ int compare_titles(char *title1, char *title2, int size)
 	return 0;
 }
 
-void erase_line(char *arq_title, int (*verify)(char *, void *), void *data_filter)
+void trim(char *str, int size)
+{
+    int end = size - 1;
+
+    while (end >= 0 && str[end] == ' ')
+    {
+        str[end] = '\0';
+        end--;
+    }
+}
+
+void erase_line(char *arq_title, int (*verify)(char *, void *), unsigned amount_erase, void *data_filter)
 {
 	FILE *fl;
 	char fl_path[100];
@@ -88,44 +99,55 @@ void erase_line(char *arq_title, int (*verify)(char *, void *), void *data_filte
 
 	if (fl == NULL)
 	{
-		fprintf((&_iob[2]), "NAO FOI POSSIVEL ABRIR ");
+		fprintf(stderr, "NAO FOI POSSIVEL ABRIR ");
 		return;
 	}
 
-	int unsigned amount, line_size;
-	fscanf(fl, "%010u;%010u", &amount, &line_size);
+	int unsigned amount, line_size, increment;
+	fscanf(fl, HEADER_MASK, &amount, &line_size, &increment);
 
-	char *last = malloc(sizeof(char) * line_size);
-	char *replace = malloc(sizeof(char) * line_size);
+	char *buff = malloc(sizeof(char) * line_size + 1);
+	buff[line_size] = '\0';
 
-	fseek(fl, -(line_size), SEEK_END);
-	fread(last, sizeof(char), line_size, fl);
-
-	fseek(fl, HEARDER_SIZE, SEEK_SET);
+	int erased = 0;
 
 	for (int i = 0; i < amount; i++)
-	{
-		fread(replace, sizeof(char), line_size, fl);
+	{	
+		if(erased >= amount_erase) break;
 
-		if (verify(replace, data_filter))
-		{
-			fseek(fl, (-(line_size)), SEEK_CUR);
-			fwrite(last, sizeof(char), line_size, fl);
-			break;
+		fseek(fl, (HEARDER_SIZE + (line_size * i)), SEEK_SET);
+		fread(buff, sizeof(char), line_size, fl);
+		buff[line_size] = '\0';
+
+		if (verify(buff, data_filter))
+		{	
+			if(i == amount - erased - 1)
+			{
+				erased++;
+				break;
+			}
+			fseek(fl, (HEARDER_SIZE + (line_size * (amount - erased - 1))), SEEK_SET);
+			fread(buff, sizeof(char), line_size, fl);
+			buff[line_size] = '\0';
+
+			fseek(fl, (HEARDER_SIZE + (line_size * i)), SEEK_SET);
+			fwrite(buff, sizeof(char), line_size, fl);
+
+			i--;
+			erased++;
 		}
 	}
 
-	free(last);
-	free(replace);
+	free(buff);
 
-	fseek(fl, 0, SEEK_SET);
-	fprintf(fl, "%010u;%010u\r\n", (amount - 1), line_size);
+	rewind(fl);
+	fprintf(fl, HEADER_MASK, (amount - erased), line_size, increment);
 
 	fflush(fl);
 
-	resize_fl(fl, (HEARDER_SIZE + (amount - 1) * line_size))
+	resize_fl(fl, (HEARDER_SIZE + (amount - erased) * line_size))
 
-		fclose(fl);
+	fclose(fl);
 
 	return;
 }
@@ -144,54 +166,61 @@ void append_line(char *arq_title, int auto_incremente_id, char *fmt, ...)
 		return;
 	}
 
-	int unsigned amount, line_size;
-	fscanf(fl, "%010u;%010u", &amount, &line_size);
+	int unsigned amount, line_size, increment;
+	fscanf(fl, HEADER_MASK, &amount, &line_size, &increment);
 	fseek(fl, 0, SEEK_END);
 
 	va_list args;
 
+	//interpreta a lista de parametros args com o formt que foi dado (funções que fazem isso: scanf, printf...)
 	va_start(args, fmt);
 
-	char *buff = malloc(sizeof(char)*line_size);
+	//inicializa buffer
+	char *buff = malloc(sizeof(char)*line_size + 1);
 
-	vsprintf(buff, fmt, args);
+	//transforma os elementos dados em uma string para a inserção no txt
+	vsnprintf(buff, line_size + 1, fmt, args);
 
-	//posiciona \0 no final de cada palavra
-	for (int i = line_size, blank = 0; i > 0; i--)
-	{	
-		if(blank > 0 && !(buff[i - 1] == ' ' || buff[i - 1] == ';'))
-		{
-			blank = 0;
-			buff[i] = '\0';
-		}
-		
-		blank = ((buff[i] == ' ' && blank > 0) || buff[i] == ';')? blank + 1 : 0;
-	}
+	buff[line_size] = '\0';
+
+	va_end(args);
 
 	// adiciona o id auto incrementado no buff
 	if(auto_incremente_id)
 	{
 		char numero[11];
-		sprintf(numero, "%010u", (amount + 1));
+		sprintf(numero, "%010u", (increment + 1));
 		for(int i = 0; i < 10; i++)
 		{
-			buff[i] = numero[i]
+			buff[i] = numero[i];
 		}
 	}
 
-	va_end(args);
+	fwrite(buff, sizeof(char), line_size, fl);
+
+	free(buff);
 
 	fflush(fl);
 	fseek(fl, 0, SEEK_SET);
-	fprintf(fl, "%010u;%010u", amount + 1, line_size);
+	fprintf(fl, HEADER_MASK, amount + 1, line_size, increment + 1);
 
 	fclose(fl);
 
 	return;
 }
 
-void **read_fl(char *arq_title, void (*save)(char *, void *, void **), void *data_filter)
-{
+void **read_fl(char *arq_title, void (*save)(char *, void *, void **), unsigned int amount_save, void *data_filter)
+{	
+	/*
+		Essa função tem como parametros:
+			+ arq_title: Titulo do arquivo que deve ser aberto;
+			+ save: uma função respossavel por penerar os dados;
+			+ amount_save: quantidade que devemos salvar;
+			+ data_filter: exemplo de dado que devemos pegar, ele mais tarde é passado para a func save;
+
+		Retorno: 
+			+ Uma lista dinamica que contem os elementos resultado da query;
+	*/
 	FILE *fl;
 	char fl_path[100];
 	sprintf(fl_path, "data/files/%s.txt", arq_title);
@@ -204,24 +233,94 @@ void **read_fl(char *arq_title, void (*save)(char *, void *, void **), void *dat
 		return NULL;
 	}
 
-	int unsigned amount, line_size;
-	fscanf(fl, "%010u;%010u", &amount, &line_size);
+	// Le header
+	int unsigned amount, line_size, increment;
+	fscanf(fl, HEADER_MASK, &amount, &line_size, &increment);
 
-	void **selected = dina_prt_init(amount);
-	char *buff = malloc(sizeof(char) * line_size);
+	// Inicia a lista de retorno e também o buffer
+	void **selected = (amount_save == 0)?dina_prt_init(amount) :dina_prt_init(amount_save);
+	char *buff = malloc(sizeof(char) * line_size + 1);
+	buff[line_size] = '\0';
 
+	// ajusta ponteiro
 	fseek(fl, HEARDER_SIZE, SEEK_SET);
 
 	for (int i = 0; i < amount; i++)
-	{
-		fread(buff, sizeof(char), line_size, fl);
+	{	
+		//breca o for qantes da lista estourar
+		if(dinamic_size(selected) >= dinamic_pre_size(selected)) break;
 
+		//le linha
+		if(fread(buff, sizeof(char), line_size, fl) != line_size) break;
+
+
+		// Funçao penera
 		save(buff, data_filter, selected);
 	}
 
+	//Libera buffer
 	free(buff);
 
 	fclose(fl);
 
 	return selected;
+}
+
+void update_fl(char *arq_title, int (*alter)(char *, void *), unsigned int amount_alter, void *data_filter)
+{	
+	/*
+		Essa função tem como parametros:
+			+ arq_title: Titulo do arquivo que deve ser aberto;
+			+ alter: uma função respossavel por penerar os dados e alteralos;
+			+ amount: quantidade que devemos alterar;
+			+ data_filter: exemplo de dado que devemos pegar, ele mais tarde é passado para a func alter;
+	*/
+	FILE *fl;
+	char fl_path[100];
+	sprintf(fl_path, "data/files/%s.txt", arq_title);
+
+	fl = fopen(fl_path, "rb+");
+
+	if (fl == NULL)
+	{
+		fprintf(stderr, "NAO FOI POSSIVEL ABRIR ");
+		return;
+	}
+
+	// Le header
+	int unsigned amount, line_size, increment;
+	fscanf(fl, HEADER_MASK, &amount, &line_size, &increment);
+
+	// Inicia buffer
+	char *buff = malloc(sizeof(char) * line_size + 1);
+	buff[line_size] = '\0';
+
+	// ajusta ponteiro
+	fseek(fl, HEARDER_SIZE, SEEK_SET);
+
+	for (int i = 0, altered = 0; i < amount; i++)
+	{	
+		//breca o for se os alvos já foram alterados
+		if(altered >= amount_alter) break;
+
+		//le linha
+		fread(buff, sizeof(char), line_size, fl);
+
+		// Funçao de alteração e se ele alterou 
+		int save_changes = alter(buff, data_filter);
+
+		//salva as alterações no arquivo, se elas ocorreram
+		if(save_changes)
+		{	
+			fseek(fl, (-line_size), SEEK_CUR);
+			fwrite(buff, sizeof(char), line_size, fl);
+
+			altered++;
+		}
+	}
+
+	//Libera buffer
+	free(buff);
+
+	fclose(fl);
 }

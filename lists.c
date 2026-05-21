@@ -10,7 +10,7 @@ dinamic_list_impl(void *, dina_prt, 0);
 
 void add_title(char *title, prt_l_list *title_l)
 {
-    char *t = malloc(sizeof(char)*20);
+    char *t = malloc(sizeof(char)*21);
     copy_str(t, title);
 
     add_prt_l(t, title_l);

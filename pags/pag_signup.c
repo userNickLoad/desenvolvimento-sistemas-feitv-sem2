@@ -46,13 +46,15 @@ void signup_request(Page *this_p)
         return;
     }
 
-    Response res_signup = signup(user->name, user->password);
+    Response *res_signup = signup(user->name, user->password);
 
-    if(res_signup.code != 200){
-        copy_struct(res, &res_signup, sizeof(Response));
+    if(res_signup->code != 200){
+        copy_struct(res, res_signup, sizeof(Response));
         page_signup(this_p);
         return;
     }
+
+    free(res_signup);
 
     clear_signup(this_p);
     page_login(this_p);
