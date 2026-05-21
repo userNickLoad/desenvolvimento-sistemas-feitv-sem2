@@ -43,7 +43,7 @@ typedef struct Playlist
     unsigned int id;
     unsigned int user_id;
     unsigned int videos;
-    char name[20];
+    char name[50];
     char description[250];
 } Playlist;
 

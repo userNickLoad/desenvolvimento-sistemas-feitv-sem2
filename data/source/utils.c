@@ -82,11 +82,26 @@ void trim(char *str, int size)
 {
     int end = size - 1;
 
-    while (end >= 0 && str[end] == ' ')
+    while(end >= 0 &&
+         (str[end] == ' ' || str[end] == '\0'))
     {
-        str[end] = '\0';
         end--;
     }
+
+    str[end + 1] = '\0';
+}
+
+void trim_str(char *str)
+{
+    int end = strlen(str) - 1;
+
+    while(end >= 0 &&
+         (str[end] == ' ' || str[end] == '\0'))
+    {
+        end--;
+    }
+
+    str[end + 1] = '\0';
 }
 
 void erase_line(char *arq_title, int (*verify)(char *, void *), unsigned amount_erase, void *data_filter)

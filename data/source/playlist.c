@@ -1,3 +1,4 @@
+#include "../../header.h"
 #include "data.h"
 #include "../../lists.h"
 
@@ -7,7 +8,9 @@ void filter_playlists_title(char *line, void *data_filter, void **list_save)
 
     PLAYLIST_SCAN(line, temp)
 
-    if(!(compare_str(playlist_filter->name, temp.name, sizeof(playlist_filter->name) && playlist_filter->user_id == temp.user_id))) return;
+    trim_str(playlist_filter->name);
+
+    if(!(compare_str(playlist_filter->name, temp.name) && playlist_filter->user_id == temp.user_id)) return;
 
     Playlist *save_playlist = malloc(sizeof(Playlist));
     copy_struct(save_playlist, &temp, sizeof(Playlist));
@@ -18,7 +21,7 @@ void playlist_by_id(char *line, void *data_filter, void ** list_save)
 {
     Playlist temp, *playlist_filter = data_filter;
 
-    PLAYLIST_SCAN(line, temp)
+    PLAYLIST_SCAN(line, temp)   
 
     if(playlist_filter->id != temp.id) return;
 
@@ -59,6 +62,8 @@ void filter_playlists_title_starts_with(char *line, void *data_filter, void **li
     Playlist temp, *playlist_filter = data_filter;
 
     PLAYLIST_SCAN(line, temp)
+
+    trim_str(playlist_filter);
 
     if(!(compare_titles(playlist_filter->name, temp.name, sizeof(playlist_filter->name) && playlist_filter->user_id == temp.user_id))) return;
 
@@ -153,10 +158,10 @@ void join_playlist_videos(char *line, void *data_filter, void **list_save)
     }
 
     if(!fund) return;
-    Video *save_video = malocc(sizeof(Video));
+    Video *save_video = malloc(sizeof(Video));
     copy_struct(save_video, &temp, sizeof(Video));
 
-    Videos_PV_DTO *save_dto = malocc(sizeof(Videos_PV_DTO));
+    Videos_PV_DTO *save_dto = malloc(sizeof(Videos_PV_DTO));
     save_dto->videos = save_video;
     save_dto->place = place;
   
@@ -171,7 +176,7 @@ Response *create_playlist(unsigned int user_id, char * title, char * description
     playlist_filter.user_id = user_id;
     copy_str(playlist_filter.name, title);
 
-    Playlist **same_title_query = read_fl("Playlist", filter_playlists_title, 1, &playlist_filter);
+    Playlist **same_title_query = (Playlist **)read_fl("Playlist", filter_playlists_title, 1, &playlist_filter);
 
     if (same_title_query == NULL)
     {   
@@ -194,7 +199,7 @@ Response *create_playlist(unsigned int user_id, char * title, char * description
 
     dinamic_free(void *, same_title_query)
 
-    append_line("Playlist", 1, PLAYLIST_PRINT_MASK, 0, 0, title, description);
+    append_line("Playlist", 1, PLAYLIST_PRINT_MASK, 0, user_id, 0, title, description);
 
     res->code = 200;
     res->data = NULL;
@@ -203,15 +208,14 @@ Response *create_playlist(unsigned int user_id, char * title, char * description
     return res;
 }
 
-Response *delete_playlist(unsigned int user_id, unsigned int playlist_id)
+Response *delete_playlist(unsigned int playlist_id)
 {
     Response *res = malloc(sizeof(Response));
 
     Playlist playlist_filter;
-    playlist_filter.user_id = user_id;
     playlist_filter.id = playlist_id;
 
-    Playlist **playlist_query = read_fl("Playlist", filter_playlists_title, 1, &playlist_filter);
+    Playlist **playlist_query = (Playlist **)read_fl("Playlist", playlist_by_id, 1, &playlist_filter);
 
     if (playlist_query == NULL)
     {   
@@ -258,7 +262,7 @@ Response *search_for_playlists(unsigned int user_id, char * title)
     playlist_filter.user_id = user_id;
     copy_str(playlist_filter.name, title);
 
-    Playlist **playlists = read_fl("Playlist", filter_playlists_title_starts_with, 0, &playlist_filter);
+    Playlist **playlists = (Playlist **)read_fl("Playlist", filter_playlists_title_starts_with, 0, &playlist_filter);
 
     if (playlists == NULL)
     {   
@@ -294,7 +298,7 @@ Response *add_video_playlist(unsigned int playlist_id, unsigned int video_id)
     Playlist playlist_filter = {0};
     playlist_filter.id = playlist_id;
 
-    Playlist **playlist_query = read_fl("Playlist", playlist_by_id, 1, &playlist_filter);
+    Playlist **playlist_query = (Playlist **)read_fl("Playlist", playlist_by_id, 1, &playlist_filter);
     
     if (playlist_query == NULL)
     {   
@@ -324,7 +328,7 @@ Response *add_video_playlist(unsigned int playlist_id, unsigned int video_id)
         playlist_video_filter.playlist_id = playlist_id;
         playlist_video_filter.video_id = video_id;
 
-        Playlist_Video **video_already_in_query = read_fl("Playlist_video", playlist_video_by_ids, 1, &playlist_video_filter);
+        Playlist_Video **video_already_in_query = (Playlist_Video **)read_fl("Playlist_video", playlist_video_by_ids, 1, &playlist_video_filter);
 
         if (video_already_in_query == NULL)
         {   
@@ -375,7 +379,7 @@ Response *remove_video_playlist(unsigned int playlist_id, unsigned int video_id)
     Playlist playlist_filter = {0};
     playlist_filter.id = playlist_id;
 
-    Playlist **playlist_query = read_fl("Playlist", playlist_by_id, 1, &playlist_filter);
+    Playlist **playlist_query = (Playlist **)read_fl("Playlist", playlist_by_id, 1, &playlist_filter);
 
     if (playlist_query == NULL)
     {   
@@ -401,7 +405,7 @@ Response *remove_video_playlist(unsigned int playlist_id, unsigned int video_id)
     pv_filter.playlist_id = playlist_id;
     pv_filter.video_id = video_id;
 
-    Playlist **pv_query = read_fl("Playlist", playlist_video_by_ids, 1, &pv_filter);
+    Playlist_Video **pv_query = (Playlist_Video **)read_fl("Playlist_video", playlist_video_by_ids, 1, &pv_filter);
 
     if (pv_query == NULL)
     {   
@@ -427,7 +431,7 @@ Response *remove_video_playlist(unsigned int playlist_id, unsigned int video_id)
 
     update_fl("Playlist_video", update_videos_order_deleted, (playlist->videos - (1 + playlist_video->place)), playlist_video);
 
-    update_fl("Playlist", playlist_by_id, update_decrease_vids, playlist);
+    update_fl("Playlist", update_decrease_vids, 1, playlist);
 
     free(playlist_video);
     free(playlist_video);
@@ -446,7 +450,7 @@ Response *videos_from_playlist(unsigned int playlist_id)
     Playlist playlist_filter = {0};
     playlist_filter.id = playlist_id;
 
-    Playlist **playlist_query = read_fl("Playlist", playlist_by_id, 1, &playlist_filter);
+    Playlist **playlist_query = (Playlist **)read_fl("Playlist", playlist_by_id, 1, &playlist_filter);
 
     if (playlist_query == NULL)
     {   
@@ -481,7 +485,7 @@ Response *videos_from_playlist(unsigned int playlist_id)
     Playlist_Video *pv_filter = {0};
     pv_filter->playlist_id = playlist_id;
 
-    Playlist_Video **pv_query = read_fl("Playlist_video", playlist_videos_by_playlist_id, playlist->videos, &pv_filter);
+    Playlist_Video **pv_query = (Playlist_Video **)read_fl("Playlist_video", playlist_videos_by_playlist_id, playlist->videos, &pv_filter);
     
     if (pv_query == NULL)
     {   
@@ -503,7 +507,7 @@ Response *videos_from_playlist(unsigned int playlist_id)
         return res;
     }
 
-    Videos_PV_DTO **video_query = read_fl("Video", join_playlist_videos, playlist->videos, pv_query);
+    Videos_PV_DTO **video_query = (Videos_PV_DTO **) read_fl("Video", join_playlist_videos, playlist->videos, pv_query);
 
     if (video_query == NULL)
     {   
