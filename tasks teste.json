@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "gcc",
+      "args": [
+                "-g",
+                "${workspaceFolder}/data/source/playlist.c",
+                "${workspaceFolder}/data/source/utils.c",
+                "${workspaceFolder}/data/source/testes/playlist/videos_from.c",
+                "${workspaceFolder}/lists.c",
+                "-o",
+                "${workspaceFolder}/main.exe"
+            ],
+      "group": "build"
+    }
+  ]
+}

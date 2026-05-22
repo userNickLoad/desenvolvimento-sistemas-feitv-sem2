@@ -9,8 +9,9 @@ int video_increase_like(char *line, void *data_filter)
     VIDEO_SCAN(line, original)
 
     if(original.id != new->id) return 0;
+    original.likes++;
 
-    sprintf(line, VIDEO_PRINT_MASK, original.id, original.name, original.desc, original.duration,  original.likes + 1,  original.dislikes);
+    VIDEO_PRINT(line, original);
 
     return 1;
 }
@@ -24,7 +25,9 @@ int video_decrease_like(char *line, void *data_filter)
 
     if(original.id != new->id) return 0;
 
-    sprintf(line, VIDEO_PRINT_MASK, original.id, original.name, original.desc, original.duration,  original.likes - 1,  original.dislikes);
+    original.likes--;
+
+    VIDEO_PRINT(line, original);
 
     return 1;
 }
@@ -38,7 +41,9 @@ int video_increase_dislike(char *line, void *data_filter)
 
     if(original.id != new->id) return 0;
 
-    sprintf(line, VIDEO_PRINT_MASK, original.id, original.name, original.desc, original.duration,  original.likes,  original.dislikes + 1);
+    original.dislikes++;
+
+    VIDEO_PRINT(line, original);
 
     return 1;
 }
@@ -52,7 +57,9 @@ int video_decrease_dislike(char *line, void *data_filter)
 
     if(original.id != new->id) return 0;
 
-    sprintf(line, VIDEO_PRINT_MASK, original.id, original.name, original.desc, original.duration,  original.likes,  original.dislikes - 1);
+    original.dislikes--;
+
+    VIDEO_PRINT(line, original)
 
     return 1;
 }

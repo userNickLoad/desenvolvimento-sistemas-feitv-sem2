@@ -5,7 +5,7 @@
 #include "../data/source/data.h"
 #include "utils.h"
 
-void clear_open_vid(Page * this_p)
+void clear_video_in_pl(Page * this_p)
 {   
     Response * res = this_p->data.response;
     Video_user * data = res->data;
@@ -23,49 +23,59 @@ void clear_open_vid(Page * this_p)
     this_p->data.response = NULL;
 }
 
-void request_video_by_id(Page *this_p)
+void request_video_by_id_in_pl(Page *this_p)
 {   
-    Page_video_info *info = this_p->data.payload;
+    Page_playlist_info *info = this_p->data.payload;
 
-    Response *res = video_user_search(this_p->data.user.id, info->vid_selected);
+    Response *res = video_user_search(this_p->data.user.id, info->vid_id);
 
     this_p->data.response = res;
 
-    page_open_vid(this_p);
+    page_video_in_pl(this_p);
 }
 
-void request_like(Page *this_p)
+void request_like_in_pl(Page *this_p)
 {
     pop_title(this_p->link);
-    Page_video_info *info = this_p->data.payload;
+    Page_playlist_info *info = this_p->data.payload;
 
-    handle_like(this_p->data.user.id, info->vid_selected);
+    handle_like(this_p->data.user.id, info->vid_id);
 
-    request_video_by_id(this_p);
+    request_video_by_id_in_pl(this_p);
 }
 
-void request_disike(Page *this_p)
+void request_disike_in_pl(Page *this_p)
 {   
     pop_title(this_p->link);
-    Page_video_info *info = this_p->data.payload;
+    Page_playlist_info *info = this_p->data.payload;
 
-    handle_dislike(this_p->data.user.id, info->vid_selected);
+    handle_dislike(this_p->data.user.id, info->vid_id);
 
-    request_video_by_id(this_p);
+    request_video_by_id_in_pl(this_p);
 }
 
-void page_open_vid(Page *this_p) 
+void request_remove_from_playlist(Page *this_p)
+{   
+    pop_title(this_p->link);
+    Page_playlist_info *info = this_p->data.payload;
+
+    Response *res = remove_video_playlist(info->pl_selected, info->vid_id);
+
+    free(res);
+    request_videos_in_pl(this_p);
+}
+
+void page_video_in_pl(Page *this_p) 
 {
     Response *res = (Response *)this_p->data.response;
     Video_user *vid = (Video_user *)res->data;
-    Page_video_info *info = (Page_video_info *)this_p->data.payload;
 
     char **ops = (char **)dina_prt_init(3);
     ChangePage *nxt = dina_chPage_init(3);
     ChangePage *lst = malloc(sizeof(ChangePage));
 
-    lst->free_all = clear_open_vid;
-    lst->build = info->lst_page;
+    lst->free_all = clear_video_in_pl;
+    lst->build = request_videos_in_pl;
 
     char ops1[40];
     snprintf(ops1, 40, "%u Gostei%s", vid->video.likes, (vid->like)? " @": "");
@@ -77,19 +87,20 @@ void page_open_vid(Page *this_p)
 
     ops = add_opcao("Salvar em playlists", ops, sizeof(ops2));
 
-    add_nxt_pag(request_like, clear_open_vid, nxt)
-    add_nxt_pag(request_disike, clear_open_vid, nxt)
-    add_nxt_pag(request_playlists_add_video, clear_open_vid, nxt)
+    add_nxt_pag(request_like_in_pl, clear_video_in_pl, nxt)
+    add_nxt_pag(request_disike_in_pl, clear_video_in_pl, nxt)
+    add_nxt_pag(request_remove_from_playlist, clear_video_in_pl, nxt)
 
     // char *description = malloc(330);
     char description[330];
     description[330] = '\0';
 
     char *question = NULL;
+    char *title = "video"; 
 
     if(res->code == 200)
     {
-
+        title = vid->video.name;
         snprintf(description, 330, "\n\n\tTitulo: %s;\n\nDescricao: %s;", vid->video.name, vid->video.desc);
     } else
     {
@@ -97,7 +108,7 @@ void page_open_vid(Page *this_p)
     }
 
     build_page(
-        "video",
+        title,
         description,
         question,
         ops,

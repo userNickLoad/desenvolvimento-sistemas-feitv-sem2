@@ -4,15 +4,15 @@ typedef struct User
 {
     unsigned int id;
     unsigned int playlists;
-    char name[50];
-    char password[20];
+    char name[51];
+    char password[21];
 } User;
 
 typedef struct Video
 {
     unsigned int id;
-    char name[50];
-    char desc[250];
+    char name[51];
+    char desc[251];
     unsigned int duration; //00:00:00 -> segundos de  0 a 4.294.967.295
     unsigned int likes;
     unsigned int dislikes;
@@ -43,8 +43,8 @@ typedef struct Playlist
     unsigned int id;
     unsigned int user_id;
     unsigned int videos;
-    char name[50];
-    char description[250];
+    char name[51];
+    char description[251];
 } Playlist;
 
 typedef struct Playlist_Video

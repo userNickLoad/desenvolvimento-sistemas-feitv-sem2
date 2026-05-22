@@ -16,7 +16,7 @@
     {                                                                                   \
         type *info = (type *)this_p->data.payload;                                      \
                                                                                         \
-        insert_terminal(question, info->info_var, sizeof(info->info_var), txt_type);    \
+        insert_terminal(question, info->info_var, sizeof(info->info_var)-1, txt_type);    \
                                                                                         \
         this_p->selected = GO_BACK;                                                     \
     }

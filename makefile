@@ -1,7 +1,7 @@
 CFLAGS = -g -O0 -Wall
 
-all: main.o pag_inicio.o pages_methods.o lists.o pag_login.o pag_signup.o data_utils.o user.o pag_home.o pag_look_vids.o  video.o pag_open_vid.o
-	gcc $(CFLAGS) obj/main.o obj/lists.o obj/pag_inicio.o obj/pages_methods.o obj/pag_login.o obj/pag_signup.o obj/user.o obj/data_utils.o obj/pag_home.o obj/pag_look_vids.o  obj/video.o obj/pag_open_vid.o -o main
+all: main.o pag_inicio.o pages_methods.o lists.o pag_login.o pag_signup.o data_utils.o user.o pag_home.o pag_look_vids.o  video.o pag_open_vid.o pag_playlists.o playlist.o pag_create_playlist.o pag_add_video.o pag_playlist_inside.o pag_video_in_pl.o
+	gcc $(CFLAGS) obj/main.o obj/lists.o obj/pag_inicio.o obj/pages_methods.o obj/pag_login.o obj/pag_signup.o obj/user.o obj/data_utils.o obj/pag_home.o obj/pag_look_vids.o obj/video.o obj/pag_open_vid.o obj/pag_playlists.o obj/playlist.o obj/pag_create_playlist.o obj/pag_add_video.o obj/pag_playlist_inside.o obj/pag_video_in_pl.o -o main
 
 main.o: main.c
 	gcc $(CFLAGS) -c main.c -o obj/main.o
@@ -27,6 +27,18 @@ pag_playlists.o: pags/pag_playlists.c
 pag_open_vid.o: pags/pag_open_vid.c
 	gcc $(CFLAGS) -c pags/pag_open_vid.c -o obj/pag_open_vid.o
 
+pag_create_playlist.o: pags/pag_create_playlist.c
+	gcc $(CFLAGS) -c pags/pag_create_playlist.c -o obj/pag_create_playlist.o
+
+pag_playlist_inside.o: pags/pag_playlist_inside.c
+	gcc $(CFLAGS) -c pags/pag_playlist_inside.c -o obj/pag_playlist_inside.o
+
+pag_add_video.o: pags/pag_add_video.c
+	gcc $(CFLAGS) -c pags/pag_add_video.c -o obj/pag_add_video.o
+
+pag_video_in_pl.o: pags/pag_video_in_pl.c
+	gcc $(CFLAGS) -c pags/pag_video_in_pl.c -o obj/pag_video_in_pl.o
+
 pages_methods.o: pages_methods.c
 	gcc $(CFLAGS) -c pages_methods.c -o obj/pages_methods.o
 
@@ -35,6 +47,9 @@ user.o: data/source/user.c
 
 video.o: data/source/video.c
 	gcc $(CFLAGS) -c data/source/video.c -o obj/video.o
+
+playlist.o: data/source/playlist.c
+	gcc $(CFLAGS) -c data/source/playlist.c -o obj/playlist.o
 
 data_utils.o: data/source/utils.c
 	gcc $(CFLAGS) -c data/source/utils.c -o obj/data_utils.o

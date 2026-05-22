@@ -25,17 +25,25 @@ Response *login(char *name, char *password)
 
     User **query =  (User **)read_fl("User", user_by_name, 1, &user_filter);
 
-    User *user = query[0];
-
-    dinamic_free(void *, query)
-
     // se não achou usuario, é pq o nome está incorreto
-    if (user == NULL)
+    if (query == NULL)
     {
+        res->code = 401;
+        copy_str(res->msg, "\n\tErro ao fazer query");
+        return res;
+    }
+
+    if (dinamic_size(query) == 0)
+    {   
+        dinamic_free(void *, query);
         res->code = 401;
         copy_str(res->msg, "\n\tNome ou senha devem estar incorretos.");
         return res;
     }
+
+    User *user = query[0];
+
+    dinamic_free(void *, query)
 
     // se não achou usuario, mas a senha está incorreta
     if (!compare_str(user->password, password))

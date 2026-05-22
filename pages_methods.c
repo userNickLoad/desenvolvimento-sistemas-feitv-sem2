@@ -118,6 +118,16 @@ int validateCh_login(char c)
     );
 }
 
+int validateCh_palylist(char c)
+{
+    return (
+        ((int)'0' <= (int)c && (int)c <= (int)'9') ||
+        ((int)'a' <= (int)c && (int)c <= (int)'z') ||
+        ((int)'A' <= (int)c && (int)c <= (int)'Z') ||
+        (c == '_' || c == ' ')
+    );
+}
+
 void insert_terminal(char *question, char *data, int limit, int (*verifyFn)(char c))
 {
     int lst;
@@ -175,12 +185,15 @@ char **add_opcao(char *op, char **ops, int size)
 }
 
 void free_opcoes(char **ops)
-{
-    for (int i = 0; i < dinamic_size(ops); i++)
+{   
+    if(ops != NULL)
     {
-        free(ops[i]);
+        for (int i = 0; i < dinamic_size(ops); i++)
+        {
+            free(ops[i]);
+        }
+        dinamic_free(void *, (void **)ops);
     }
-    dinamic_free(void *, ops);
 }
 
 void render(Page *page)
@@ -358,7 +371,7 @@ void live_page(Page *this_p)
 
         clearFn_defualt(this_p);
 
-        if (build_p.free_all)
+        if (build_p.free_all != NULL)
             build_p.free_all(this_p);
 
         build_p.build(this_p);

@@ -67,7 +67,7 @@ void request_vids(Page *this_p)
     res = search_for_videos(title);
 
     
-        this_p->data.response = res;
+    this_p->data.response = res;
 
     page_look_vids(this_p);
 }
@@ -77,8 +77,29 @@ ChangePage selectFn_lv(Page *this_p, int lst_selected)
     Page_video_info *data = this_p->data.payload;
     Response *res = this_p->data.response;
     Video **vids = res->data;
-    data->vid_selected = (vids != NULL)? vids[lst_selected][0].id: 0;
+    data->vid_selected = (vids != NULL)? vids[lst_selected - 1][0].id: 0;
     return (lst_selected == 0)? this_p->nxt[0]: this_p->nxt[1];
+}
+
+void render_videos(Page *this_p, int i)
+{   
+    if (i == 1)
+    {   
+        Response *res = (Response *)this_p->data.response;
+        Video **videos = (Video **)res->data;
+
+        if (videos == NULL)
+        printf("\n\tNenhum video encontrado.\n");
+        else
+        printf("\n\tResulto %u videos:\n\n", dinamic_size(videos));
+    }
+    if (i == this_p->selected)
+    {
+        printf("\t\t---> [%d]: %s;\n", i, this_p->opcoes[i]);
+        return;
+    }
+
+    printf("\t\t- [%d]: %s;\n", i, this_p->opcoes[i]);
 }
 
 void page_look_vids(Page *this_p) {
@@ -124,7 +145,7 @@ void page_look_vids(Page *this_p) {
         nxt,
         lst,
         selectFn_lv,
-        NULL,
+        render_videos,
         NULL,
         this_p
     );

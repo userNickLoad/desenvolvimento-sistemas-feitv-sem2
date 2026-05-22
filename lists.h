@@ -121,12 +121,27 @@ typedef struct Page Page;
 #define add_dinamic_list(type, name)                                  \
     type *name##_add(type value, type *list)                          \
     {                                                                 \
+        if (dinamic_size(list) + 1 > dinamic_pre_size(list))          \
+        {                                                             \
+            int new_size = (dinamic_pre_size(list)) * 2;                \
+            int *base = ((int *)list) - 3;                            \
                                                                       \
-                                                       \
+            base = realloc(                                           \
+                base,                                                 \
+                sizeof(type) * new_size + 3 * sizeof(int)             \
+            );                                                        \
+                                                                      \
+            if (base == NULL)                                         \
+                return list;                                          \
+                                                                      \
+            list = (type *)(base + 3);                                \
+                                                                      \
+            dinamic_pre_size(list) = new_size;                        \
+        }                                                             \
                                                                       \
         list[dinamic_size(list)] = value;                             \
                                                                       \
-        dinamic_size(list) = 1 + dinamic_size(list);                                      \
+        (dinamic_size(list))++;                                         \
                                                                       \
         return list;                                                  \
     }

@@ -3,6 +3,8 @@
 #include "header.h"
 #include "lists.h"
 
+#include "schema.h"
+
 #include <conio.h>
 #include <stdlib.h>
 
@@ -51,7 +53,10 @@ typedef struct Page_video_info
 typedef struct Page_playlist_info
 {
     char search_title[50];
-    unsigned int vid_selected;
+    unsigned int pl_selected;
+    unsigned int vid_id;
+    void *data;
+    Playlist *playlist;
     PageFn lst_page;
 } Page_playlist_info;
 
@@ -83,6 +88,8 @@ void listening_arrows(Page *page);
 
 int validateCh_login(char c);
 
+int validateCh_palylist(char c);
+
 void insert_terminal(char *question, char *data, int limit, int (*verifyFn)(char c));
 
 void clearFn_defualt(Page *this_p);
@@ -103,13 +110,31 @@ void page_home(Page *this_p);
 
 void page_look_vids(Page *this_p);
 
-void page_look_playlists(Page *this_p);
+void page_playlists(Page *this_p);
 
 void page_open_vid(Page *this_p);
+
+void page_create_playlist(Page *this_p);
+
+void page_video_in_pl(Page *this_p);
+
+void page_add_video(Page *this_p);
+
+void page_playlist_inside(Page *this_p);
 
 void request_vids(Page *this_p);
 
 void request_video_by_id(Page *this_p);
+
+void request_playlists(Page *this_p);
+
+void request_playlists_add_video(Page *this_p);
+
+void request_videos_in_pl(Page *this_p);
+
+void request_video_by_id_in_pl(Page *this_p);
+
+ChangePage selectFn_pl(Page *this_p, int lst_selected);
 
 #define add_nxt_pag(pageFn_, free_before, list)  \
     do                                           \

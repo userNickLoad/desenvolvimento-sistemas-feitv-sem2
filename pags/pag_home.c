@@ -10,7 +10,7 @@ void page_home(Page *this_p) {
     add_nxt_pag(request_vids, NULL, nxt);
 
     add_opcao("Ver suas playlists", ops, 20);
-    // add_nxt_pag(page_look_playlists, NULL, nxt);
+    add_nxt_pag(request_playlists, NULL, nxt);
 
     build_page(
         "home",

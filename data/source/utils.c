@@ -83,7 +83,7 @@ void trim(char *str, int size)
     int end = size - 1;
 
     while(end >= 0 &&
-         (str[end] == ' ' || str[end] == '\0'))
+         (str[end] == ' ' || str[end] == '\0' || str[end] == ';'))
     {
         end--;
     }
@@ -121,7 +121,7 @@ void erase_line(char *arq_title, int (*verify)(char *, void *), unsigned amount_
 	int unsigned amount, line_size, increment;
 	fscanf(fl, HEADER_MASK, &amount, &line_size, &increment);
 
-	char *buff = malloc(sizeof(char) * line_size + 1);
+	char *buff = malloc(sizeof(char) * line_size + 2);
 	buff[line_size] = '\0';
 
 	int erased = 0;
@@ -172,6 +172,7 @@ void append_line(char *arq_title, int auto_incremente_id, char *fmt, ...)
 	FILE *fl;
 	char fl_path[100];
 	sprintf(fl_path, "data/files/%s.txt", arq_title);
+	printf(fl_path);
 
 	fl = fopen(fl_path, "rb+");
 
@@ -191,10 +192,10 @@ void append_line(char *arq_title, int auto_incremente_id, char *fmt, ...)
 	va_start(args, fmt);
 
 	//inicializa buffer
-	char *buff = malloc(sizeof(char)*line_size + 1);
+	char *buff = malloc(sizeof(char)*line_size + 2);
 
 	//transforma os elementos dados em uma string para a inserção no txt
-	vsnprintf(buff, line_size + 1, fmt, args);
+	vsnprintf(buff, line_size + 2, fmt, args);
 
 	buff[line_size] = '\0';
 
@@ -254,7 +255,7 @@ void **read_fl(char *arq_title, void (*save)(char *, void *, void **), unsigned 
 
 	// Inicia a lista de retorno e também o buffer
 	void **selected = (amount_save == 0)?dina_prt_init(amount) :dina_prt_init(amount_save);
-	char *buff = malloc(sizeof(char) * line_size + 1);
+	char *buff = malloc(sizeof(char) * line_size + 2);
 	buff[line_size] = '\0';
 
 	// ajusta ponteiro
@@ -307,7 +308,7 @@ void update_fl(char *arq_title, int (*alter)(char *, void *), unsigned int amoun
 	fscanf(fl, HEADER_MASK, &amount, &line_size, &increment);
 
 	// Inicia buffer
-	char *buff = malloc(sizeof(char) * line_size + 1);
+	char *buff = malloc(sizeof(char) * line_size + 2);
 	buff[line_size] = '\0';
 
 	// ajusta ponteiro
