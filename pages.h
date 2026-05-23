@@ -76,8 +76,6 @@ typedef struct Page
     // void (*clearFn)(struct Page *);
     void (*render_options)(struct Page *, int i);
     void (*action)(struct Page *);
-    void (*consulta)(struct Page *);
-
 } Page;
 
 dinamic_list_dec(ChangePage, dina_chPage, sizeof(ChangePage))

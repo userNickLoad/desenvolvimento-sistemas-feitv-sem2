@@ -77,7 +77,7 @@ ChangePage selectFn_lv(Page *this_p, int lst_selected)
     Page_video_info *data = this_p->data.payload;
     Response *res = this_p->data.response;
     Video **vids = res->data;
-    data->vid_selected = (vids != NULL)? vids[lst_selected - 1][0].id: 0;
+    data->vid_selected = (vids != NULL && lst_selected != 0)? vids[lst_selected - 1]->id: 0;
     return (lst_selected == 0)? this_p->nxt[0]: this_p->nxt[1];
 }
 

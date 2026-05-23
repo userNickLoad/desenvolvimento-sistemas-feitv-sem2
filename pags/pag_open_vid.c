@@ -86,10 +86,11 @@ void page_open_vid(Page *this_p)
     description[330] = '\0';
 
     char *question = NULL;
+    char *title = "video";
 
     if(res->code == 200)
     {
-
+        title = vid->video.name;
         snprintf(description, 330, "\n\n\tTitulo: %s;\n\nDescricao: %s;", vid->video.name, vid->video.desc);
     } else
     {
@@ -97,7 +98,7 @@ void page_open_vid(Page *this_p)
     }
 
     build_page(
-        "video",
+        title,
         description,
         question,
         ops,

@@ -70,7 +70,7 @@ void request_playlists_add_video(Page *this_p)
 {   
     Page_video_info *video_info = this_p->data.payload;
     int video_id = video_info->vid_selected;
-    clear_lv_add(this_p);
+    // clear_lv_add(this_p);
 
     Page_playlist_info *playlist_info = this_p->data.payload;
     
@@ -87,6 +87,8 @@ void request_playlists_add_video(Page *this_p)
         playlist_info->vid_id = video_id;
         this_p->data.payload = playlist_info;
     }
+
+    playlist_info->vid_id = video_id;
     
     char *title = playlist_info->search_title;
     res = search_for_playlists_to_add(this_p->data.user.id, video_id, title);
@@ -96,16 +98,16 @@ void request_playlists_add_video(Page *this_p)
     page_add_video(this_p);
 }
 
-generate_gettxt_page(pl_add_search_bar, "Busque por suas playlists", Page_playlist_info, search_title, validateCh_login, request_playlists_add_video)
+generate_gettxt_page(pl_add_search_bar, "Busque por suas playlists", Page_playlist_info, search_title, validateCh_palylist, request_playlists_add_video)
 
 ChangePage selectFn_pl_(Page *this_p, int lst_selected)
 {   
     Page_playlist_info *data = this_p->data.payload;
     Response *res = this_p->data.response;
     Playlist **playlists = (Playlist **)res->data;
-    data->pl_selected = (lst_selected > 0) ? playlists[lst_selected-1]->id: 0;
+    data->pl_selected = (lst_selected != 0) ? playlists[lst_selected-1]->id: 0;
 
-    return (lst_selected < 0)? this_p->nxt[lst_selected]: this_p->nxt[1];
+    return (lst_selected == 0)? this_p->nxt[lst_selected]: this_p->nxt[1];
 }
 
 void render_playlists_(Page *this_p, int i)

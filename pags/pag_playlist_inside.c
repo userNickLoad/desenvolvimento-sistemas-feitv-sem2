@@ -11,25 +11,29 @@ void clear_resposnse_pl_in(Page *this_p)
     if (res != NULL)
     {     
         Playlis_Videos_PV_DTO *dto = ( Playlis_Videos_PV_DTO *)res->data;
-        Playlist * playlist =  dto->playlist;
-        Videos_PV_DTO **videos =  dto->videos;
-
-        if (videos != NULL)
+        if (dto != NULL)
         {
-            for(int i = 0; i < dinamic_size(videos); i++)
+            Playlist * playlist =  dto->playlist;
+            Videos_PV_DTO **videos =  dto->videos;
+
+            if (videos != NULL)
             {
-                free(videos[i]->videos);
-                free(videos[i]);
+                for(int i = 0; i < dinamic_size(videos); i++)
+                {
+                    free(videos[i]->videos);
+                    free(videos[i]);
+                }
+                dinamic_free(void*, videos);
             }
-            dinamic_free(void*, videos);
-        }
 
-        if(playlist != NULL)
-        {
-            free(playlist);
+            if(playlist != NULL)
+            {
+                free(playlist);
+            }
+            
+            free(res);
         }
-        
-        free(res);
+       
         this_p->data.response = NULL;
     }
 }

@@ -36,32 +36,33 @@ void request_video_by_id_in_pl(Page *this_p)
 
 void request_like_in_pl(Page *this_p)
 {
-    pop_title(this_p->link);
     Page_playlist_info *info = this_p->data.payload;
 
     handle_like(this_p->data.user.id, info->vid_id);
 
+    pop_title(this_p->link);
     request_video_by_id_in_pl(this_p);
 }
 
 void request_disike_in_pl(Page *this_p)
 {   
-    pop_title(this_p->link);
     Page_playlist_info *info = this_p->data.payload;
 
     handle_dislike(this_p->data.user.id, info->vid_id);
 
+    pop_title(this_p->link);
     request_video_by_id_in_pl(this_p);
 }
 
 void request_remove_from_playlist(Page *this_p)
 {   
-    pop_title(this_p->link);
+    
     Page_playlist_info *info = this_p->data.payload;
 
     Response *res = remove_video_playlist(info->pl_selected, info->vid_id);
 
     free(res);
+    pop_title(this_p->link);
     request_videos_in_pl(this_p);
 }
 
@@ -85,7 +86,7 @@ void page_video_in_pl(Page *this_p)
     snprintf(ops2, 40, "%u Nao gostei%s", vid->video.dislikes, (vid->dislike)? " @": "");
     ops = add_opcao(ops2, ops, sizeof(ops2));
 
-    ops = add_opcao("Salvar em playlists", ops, sizeof(ops2));
+    ops = add_opcao("Excluir da playlists", ops, sizeof(ops2));
 
     add_nxt_pag(request_like_in_pl, clear_video_in_pl, nxt)
     add_nxt_pag(request_disike_in_pl, clear_video_in_pl, nxt)

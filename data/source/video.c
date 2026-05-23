@@ -196,7 +196,7 @@ void vid_by_id(char *line, void *data_filter, void **list_save)
     Video temp;
     Video *video_filter = data_filter;
 
-    sscanf(line, VIDEO_SCAN_MASK, &temp.id, temp.name, temp.desc, &temp.duration, &temp.likes, &temp.dislikes);
+    VIDEO_SCAN(line, temp);
 
     if(temp.id != video_filter->id) return;
 
