@@ -72,6 +72,7 @@ void request_delete_playlist(Page *this_p)
     this_p->data.response = res;
     clear_resposnse_pl_in(this_p);
     pop_title(this_p->link);
+    pop_title(this_p->link);
     request_playlists(this_p);
 }
 
