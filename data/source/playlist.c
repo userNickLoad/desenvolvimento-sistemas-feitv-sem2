@@ -593,8 +593,6 @@ Response *remove_video_playlist(unsigned int playlist_id, unsigned int video_id)
     update_fl("Playlist", update_decrease_vids, 1, playlist);
 
     free(playlist_video);
-    free(playlist_video);
-
     res->code = 200;
     copy_str(res->msg, "Video removido");
     res->data = NULL;

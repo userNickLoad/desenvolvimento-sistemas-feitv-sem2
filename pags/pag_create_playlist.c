@@ -93,12 +93,12 @@ void page_create_playlist(Page *this_p)
     lst->free_all = clr_create_playlist;
 
     char ops1[85];
-    sprintf(ops1, "Crie um nome: %.50s;", playlist->name);
+    sprintf(ops1, "Crie um nome: %.50s", playlist->name);
     ops = add_opcao(ops1, ops, sizeof(ops1));
     add_nxt_pag(pl_create_name, NULL, nxt)
 
     char ops2[300];
-    sprintf(ops2, "Crie uma descricao: %.250s;", playlist->description);
+    sprintf(ops2, "Crie uma descricao: %.250s", playlist->description);
     ops = add_opcao(ops2, ops, sizeof(ops2));
     add_nxt_pag(pl_create_desc, NULL, nxt)
 

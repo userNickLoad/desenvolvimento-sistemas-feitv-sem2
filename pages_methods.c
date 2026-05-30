@@ -215,7 +215,7 @@ void render(Page *page)
 
     printf("\n\n");
 
-    if (page->description != NULL)
+    if (page->description[0] != '\0')
     {
         printf("%s", page->description);
 
@@ -234,7 +234,7 @@ void render(Page *page)
         }
     }
 
-    if (page->question != NULL)
+    if (page->question[0] != '\0')
     {
         printf("%s", page->question);
     }
@@ -289,7 +289,7 @@ void build_page(char *title, char *description, char *question, char **opcoes, C
     if(title != NULL){
         copy_str(this_p->title, title);
     }else{
-        copy_str(this_p->title, "\0");
+        this_p->title[0] = '\0';
     }
 
     add_title(this_p->title, this_p->link);
@@ -297,7 +297,7 @@ void build_page(char *title, char *description, char *question, char **opcoes, C
      if(description != NULL){
         copy_str(this_p->description, description);
     }else{
-        copy_str(this_p->description, "\0");
+        this_p->description[0] = '\0';
     }
 
     if(question != NULL){

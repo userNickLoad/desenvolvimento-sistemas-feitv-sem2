@@ -121,6 +121,7 @@ Response *handle_like(unsigned int user_id, unsigned int video_id)
         erase_line("Like", verify_like, 1, liked);
         update_fl("Video", video_decrease_like, 1, &video_filter);
         free(liked);
+        liked = NULL;
         return NULL;
     }
 
@@ -128,14 +129,12 @@ Response *handle_like(unsigned int user_id, unsigned int video_id)
     {   
         erase_line("Dislike", verify_like, 1, disliked);
         update_fl("Video", video_decrease_dislike, 1, &video_filter);
+        disliked = NULL;
         free(disliked);
     }
 
     append_line("Like", 0, LIKE_PRINT_MASK, user_id, video_id);
     update_fl("Video", video_increase_like, 1, &video_filter);
-
-    free(liked);
-    free(disliked);
 
     return NULL;
 }
@@ -175,8 +174,7 @@ Response *handle_dislike(unsigned int user_id, unsigned int video_id)
     }
 
     if (liked != NULL)
-    {   
-
+    {
         erase_line("Like", verify_like, 1, liked);
         update_fl("Video", video_decrease_like, 1, &video_filter);
         free(liked);
@@ -184,9 +182,6 @@ Response *handle_dislike(unsigned int user_id, unsigned int video_id)
 
     append_line("Dislike", 0, LIKE_PRINT_MASK, user_id, video_id);
     update_fl("Video", video_increase_dislike, 1, &video_filter);
-
-    free(liked);
-    free(disliked);
 
     return NULL;
 }
@@ -250,19 +245,15 @@ Response *video_user_search(unsigned int user_id, unsigned int video_id)
     {
         video_user->like = dinamic_size(liked) > 0;
         if (dinamic_size(liked) > 0) free(liked[0]);
+        dinamic_free(void *, liked);
     }
 
     if(disliked != NULL)
     {
         video_user->dislike = dinamic_size(disliked) > 0;
         if (dinamic_size(disliked) > 0) free(disliked[0]);
+        dinamic_free(void *, disliked);
     }
-    
-    dinamic_free(void *, liked);
-
-    dinamic_free(void *, disliked);
-
-    free(vid[0]);
    
     res->code = 200;
     res->data = video_user;
